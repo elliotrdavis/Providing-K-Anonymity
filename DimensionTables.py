@@ -62,7 +62,7 @@ def candidateNodeTable():
                                    pw=password,
                                    db=database))
     candidateConnectionsDF.to_sql('candidate', con=engine, if_exists='replace', chunksize=1000)
-
+    print(candidateConnectionsDF)
     # comp = [('0', '1', '2'), ('0', '1'), ('0', '1',)]
     # print(list(reduce(lambda a, b: [(p[1], *p[0]) for p in product(a, b)], comp)))
 
@@ -81,7 +81,7 @@ def generateEdges():
     edges = []
     # for each node create its edges
     for node in candidateNodeTable.newCandidateConnections: ## go through every node in candidate nodes
-        print('for each now:', node)
+        print('from:', node)
         # go through each index, check if legal then add to edge list
         for index in range(1, len(node), 2): # go through every index in each node
             #print(node[index])
@@ -91,12 +91,23 @@ def generateEdges():
                 # iterate through every other node, check for match
                 #print('search through for',node[index], candidateNodeTable.newCandidateConnections[node2])
                 if(candidateNodeTable.newCandidateConnections[node2][1] == str(nextNode) and
-                    candidateNodeTable.newCandidateConnections[node2][3] == '0'):
-                    print(candidateNodeTable.newCandidateConnections[node2])
+                        candidateNodeTable.newCandidateConnections[node2][3] == node[3]):
+                    print('to', candidateNodeTable.newCandidateConnections[node2])
+                    edges.append((candidateNodeTable.newCandidateConnections.index(node),node2))
+                if(candidateNodeTable.newCandidateConnections[node2][3] == str(nextNode) and
+                        candidateNodeTable.newCandidateConnections[node2][1] == node[1]):
+                    print('to', candidateNodeTable.newCandidateConnections[node2])
+                    edges.append((candidateNodeTable.newCandidateConnections.index(node), node2))
+
+    edges = removeDuplicates(edges)
+    print(edges)
+    sorted_by_second = sorted(edges, key=lambda element: (element[0], element[1]))
+    print(sorted_by_second)
+    ## list i need: (0,1) (0,2) (1,3) (2,3) (2,4) (3,5) (4,5)
 
 
-
-
+def removeDuplicates(edges):
+    return list(set([i for i in edges]))
 
 
 def indexTables():
