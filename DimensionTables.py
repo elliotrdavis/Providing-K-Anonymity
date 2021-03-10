@@ -89,21 +89,25 @@ def generateEdges():
             #print(nextNode)
             for node2 in range(candidateNodeTable.newCandidateConnections.index(node)+1, len(candidateNodeTable.newCandidateConnections)):
                 # iterate through every other node, check for match
-                #print('search through for',node[index], candidateNodeTable.newCandidateConnections[node2])
-                if(candidateNodeTable.newCandidateConnections[node2][1] == str(nextNode) and
+                print('search through for',node[index], candidateNodeTable.newCandidateConnections[node2])
+                nextNodeSex = int(node[1]) + 1
+                if(candidateNodeTable.newCandidateConnections[node2][1] == str(nextNodeSex) and
                         candidateNodeTable.newCandidateConnections[node2][3] == node[3]):
                     print('to', candidateNodeTable.newCandidateConnections[node2])
-                    edges.append((candidateNodeTable.newCandidateConnections.index(node),node2))
-                if(candidateNodeTable.newCandidateConnections[node2][3] == str(nextNode) and
+                    edges.append((candidateNodeTable.newCandidateConnections.index(node)+1,node2+1))
+
+                nextNodePostcode = int(node[3]) + 1
+                if(candidateNodeTable.newCandidateConnections[node2][3] == str(nextNodePostcode) and
                         candidateNodeTable.newCandidateConnections[node2][1] == node[1]):
                     print('to', candidateNodeTable.newCandidateConnections[node2])
-                    edges.append((candidateNodeTable.newCandidateConnections.index(node), node2))
+                    edges.append((candidateNodeTable.newCandidateConnections.index(node)+1, node2+1))
 
+    print('orginal list', edges)
     edges = removeDuplicates(edges)
-    print(edges)
+    print('remove dupes', edges)
     sorted_by_second = sorted(edges, key=lambda element: (element[0], element[1]))
-    print(sorted_by_second)
-    ## list i need: (0,1) (0,2) (1,3) (2,3) (2,4) (3,5) (4,5)
+    print('sorted', sorted_by_second)
+    ## list i need: (1,2) (1,3) (2,4) (3,4) (3,5) (4,6) (5,6)
 
 
 def removeDuplicates(edges):
