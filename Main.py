@@ -1,10 +1,17 @@
 from KValue import VoterListDF, VoterListColumns, exampleTables
-from ImportData import importTable, dimTableToSQL, readSQL, dimSQL
+from ImportData import importTable, dimTableToSQL, readSQL
 from DimensionTables import dimensionTables, candidateNodeTable, generateEdges, dimDFConversion
 from GraphGeneration import incognitoGraph
 
 
 # TODO:
+# Ability for n attributes
+# Fix up incognito()
+#
+#
+#
+#
+#
 # Potential for SQL to python at somepoint
 # 1) Make up some input and divide input into T, Q and set of dimension tables
 # Code dimension tables 
@@ -100,7 +107,7 @@ if __name__ == '__main__':
     # readSQL()
     # dimSQL()
     # candidateNodeTable()
-    # generateEdges()
+    generateEdges()
     # incognito()
     # dimDFConversion()
-    incognitoGraph()
+    # incognitoGraph()

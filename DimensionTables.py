@@ -17,46 +17,59 @@ database = 'dimindex'
 
 
 def candidateNodeTable():
-    connection = pymysql.connect(host=host, user=user, password=password, database=database)
+    # connection = pymysql.connect(host=host, user=user, password=password, database=database)
+    #
+    # my_cursor = connection.cursor()
+    #
+    # # Execute Query
+    # my_cursor.execute("SELECT * from sex")
+    #
+    # # Fetch the records
+    # sex = my_cursor.fetchall()
+    #
+    # my_cursor.execute("SELECT * from postcode")
+    # postcode = my_cursor.fetchall()
 
-    my_cursor = connection.cursor()
+    name = [["Name", 0], ["Name", 1]]
+    sex = [["Sex", 0], ["Sex", 1]]
+    address = [["Address", 0], ["Address", 1]]
+    age = [["Age", 0], ["Age", 1], ["Age", 2]]
+    postcode = [["Postcode", 0], ["Postcode", 1], ["Postcode", 2]]
 
-    # Execute Query
-    my_cursor.execute("SELECT * from sex")
-
-    # Fetch the records
-    sex = my_cursor.fetchall()
-
-    my_cursor.execute("SELECT * from postcode")
-    postcode = my_cursor.fetchall()
-
+    nameList = []
     sexList = []
+    addressList = []
+    ageList = []
     postcodeList = []
-    for i in sex:
+
+    for i in sex:  # for 2 attribute lists
         # print(i[2])
-        sexList.append(str(i[2]))
+        nameList.append(str(i[1]))
+        sexList.append(str(i[1]))
+        addressList.append(str(i[1]))
 
-    for j in postcode:
+    for i in postcode:  # for 3 attribute lists
         # print(j[2])
-        postcodeList.append(str(j[2]))
+        ageList.append(str(i[1]))
+        postcodeList.append(str(i[1]))
 
-    comp = [tuple(postcodeList), tuple(sexList)]
+    comp = [tuple(postcodeList), tuple(ageList), tuple(addressList), tuple(sexList), tuple(nameList)]
     candidateConnections = list(reduce(lambda a, b: [(p[1], *p[0]) for p in product(a, b)], comp))
     # print(candidateConnections)
     # turn this into df
     # [('0', '0'), ('1', '0'), ('0', '1'), ('1', '1'), ('0', '2'), ('1', '2')]
-    candidateNodeTable.newCandidateConnections = []
-    dimensions = ('Sex', 'Postcode')
+    newCandidateConnections = []
+    dimensions = ('Name', 'Sex', 'Address', 'Age', 'Postcode')
     for tuple1 in candidateConnections:  # for each tuple in above list
         newTuple = []
         for index in range(len(tuple1)):  # for each index in the tuple
             newTuple.append(dimensions[index])
             newTuple.append(tuple1[index])
-        candidateNodeTable.newCandidateConnections.append(newTuple)
+        newCandidateConnections.append(newTuple)
     # print(newCandidateConnections)
     # add to dataframe
-    candidateColumns = ['dim1', 'index1', 'dim2', 'index2']
-    candidateConnectionsDF = pd.DataFrame(candidateNodeTable.newCandidateConnections, columns=candidateColumns)
+    candidateColumns = ['dim1', 'index1', 'dim2', 'index2', 'dim3', 'index3', 'dim4', 'index4', 'dim5', 'index5']
+    candidateConnectionsDF = pd.DataFrame(newCandidateConnections, columns=candidateColumns)
     # print(candidateConnectionsDF)
     # upload to sql server
     engine = create_engine("mysql+pymysql://{user}:{pw}@localhost/{db}"
@@ -67,12 +80,12 @@ def candidateNodeTable():
     # print(candidateConnectionsDF)
     # comp = [('0', '1', '2'), ('0', '1'), ('0', '1',)]
     # print(list(reduce(lambda a, b: [(p[1], *p[0]) for p in product(a, b)], comp)))
-
-    connection.close()
+    # connection.close()
+    return newCandidateConnections
 
 
 def generateEdges():
-    candidateNodeTable()
+    candidateTable = candidateNodeTable()
     # to do
     # Subset property: let T be a relation, and let Q be a set of attributes in T.
     # If T is k-anonymous with respect to Q, then T is k-anonymous with respect to any set of
@@ -82,28 +95,28 @@ def generateEdges():
     # edges are tuples, create list of tuples and append
     generateEdges.edges = []
     # for each node create its edges
-    for node in candidateNodeTable.newCandidateConnections:  ## go through every node in candidate nodes
+    for node in candidateTable:  # go through every node in candidate nodes
         # print('from:', node)
         # go through each index, check if legal then add to edge list
         for index in range(1, len(node), 2):  # go through every index in each node
             # print(node[index])
             nextNode = int(node[index]) + 1
             # print(nextNode)
-            for node2 in range(candidateNodeTable.newCandidateConnections.index(node) + 1,
-                               len(candidateNodeTable.newCandidateConnections)):
+            for node2 in range(candidateTable.index(node) + 1,
+                               len(candidateTable)):
                 # iterate through every other node, check for match
                 # print('search through for',node[index], candidateNodeTable.newCandidateConnections[node2])
                 nextNodeSex = int(node[1]) + 1
-                if (candidateNodeTable.newCandidateConnections[node2][1] == str(nextNodeSex) and
-                        candidateNodeTable.newCandidateConnections[node2][3] == node[3]):
+                if (candidateTable[node2][1] == str(nextNodeSex) and
+                        candidateTable[node2][3] == node[3]):
                     # print('to', candidateNodeTable.newCandidateConnections[node2])
-                    generateEdges.edges.append((candidateNodeTable.newCandidateConnections.index(node) + 1, node2 + 1))
+                    generateEdges.edges.append((candidateTable.index(node) + 1, node2 + 1))
 
                 nextNodePostcode = int(node[3]) + 1
-                if (candidateNodeTable.newCandidateConnections[node2][3] == str(nextNodePostcode) and
-                        candidateNodeTable.newCandidateConnections[node2][1] == node[1]):
+                if (candidateTable[node2][3] == str(nextNodePostcode) and
+                        candidateTable[node2][1] == node[1]):
                     # print('to', candidateNodeTable.newCandidateConnections[node2])
-                    generateEdges.edges.append((candidateNodeTable.newCandidateConnections.index(node) + 1, node2 + 1))
+                    generateEdges.edges.append((candidateTable.index(node) + 1, node2 + 1))
 
     # print('original list', generateEdges.edges)
     generateEdges.edges = removeDuplicates(generateEdges.edges)
@@ -125,22 +138,28 @@ def removeDuplicates(edges):
     return list(set([i for i in edges]))
 
 
-def indexTables():
+def indexTables():  # creates index tables for dimension tables
+    partyDim = [["Party", 0]]
+    nameDim = [["Name", 0], ["Name", 1]]
     sexDim = [["Sex", 0], ["Sex", 1]]
+    addressDim = [["Address", 0], ["Address", 1]]
+    ageDim = [["Age", 0], ["Age", 1], ["Age", 2]]
     postcodeDim = [["Postcode", 0], ["Postcode", 1], ["Postcode", 2]]
+
     dimColumns = ['dim', 'index']
+
+    indexTables.partyDimDF = pd.DataFrame(data=partyDim, columns=dimColumns)
+    indexTables.nameDimDF = pd.DataFrame(data=nameDim, columns=dimColumns)
     indexTables.sexDimDF = pd.DataFrame(data=sexDim, columns=dimColumns)
+    indexTables.addressDimDF = pd.DataFrame(data=addressDim, columns=dimColumns)
+    indexTables.ageDimDF = pd.DataFrame(data=ageDim, columns=dimColumns)
     indexTables.postcodeDimDF = pd.DataFrame(data=postcodeDim, columns=dimColumns)
 
 
-def dimensionTables():
-    # For each column in table
-    # calculate number of dimensions
+def dimensionTables():  # converts columns for each dim dataframe depending on dimension
     # 1 dimension: party
     # 2 dimensions: name, sex, address
     # 3 dimensions: age and postcode
-    # for each dimension make a new table with new dimension values
-    # add the new table to arraylist for each column
 
     partyDFList = []
     nameDFList = []
@@ -272,7 +291,7 @@ def dimensionTables():
             dimensionTables.postcodeDF = postcodeDFList
 
 
-def dimDFConversion(node):
+def dimDFConversion(node):  # converts to dim dataframe for incognito algorithm
     dimensionTables()
     sexList = dimensionTables.sexDF
     postcodeList = dimensionTables.postcodeDF

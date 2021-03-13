@@ -66,13 +66,18 @@ def dimTableToSQL():
     dimensionTables.postcodeDF2.to_sql('postcodesql2', con=engine, if_exists='replace', chunksize=1000)
 
 
-def dimSQL():
+def uploadIndexTables():
     indexTables()
     engine = create_engine("mysql+pymysql://{user}:{pw}@localhost/{db}"
                            .format(user=user,
                                    pw=password,
                                    db="dimindex"))
+
+    indexTables.partyDimDF.to_sql('party', con=engine, if_exists='replace', chunksize=1000)
+    indexTables.nameDimDF.to_sql('name', con=engine, if_exists='replace', chunksize=1000)
     indexTables.sexDimDF.to_sql('sex', con=engine, if_exists='replace', chunksize=1000)
+    indexTables.addressDimDF.to_sql('address', con=engine, if_exists='replace', chunksize=1000)
+    indexTables.ageDimDF.to_sql('age', con=engine, if_exists='replace', chunksize=1000)
     indexTables.postcodeDimDF.to_sql('postcode', con=engine, if_exists='replace', chunksize=1000)
 
 
@@ -93,21 +98,21 @@ def readSQL():
     connection.close()
 
 
-def generateNodes():
-    connection = pymysql.connect(host=host, user=user, password=password, database=database)
-
-    my_cursor = connection.cursor()
-
-    # Execute Query
-    my_cursor.execute("SELECT * from agesql2")
-
-    # Fetch the records
-    result = my_cursor.fetchall()
-
-    for i in result:
-        print(i)
-
-    connection.close()
+# def generateNodes():
+#     connection = pymysql.connect(host=host, user=user, password=password, database=database)
+#
+#     my_cursor = connection.cursor()
+#
+#     # Execute Query
+#     my_cursor.execute("SELECT * from agesql2")
+#
+#     # Fetch the records
+#     result = my_cursor.fetchall()
+#
+#     for i in result:
+#         print(i)
+#
+#     connection.close()
 
 # Node generation
 # INSERT INTO Ci(dim1, index1,..., dimi, indexi, parent1, parent2)
