@@ -3,7 +3,6 @@ import pandas as pd
 from DimensionTables import dimensionTables, indexTables
 from sqlalchemy import create_engine
 
-
 # This class imports data from my SQL database and converts it into
 # a pandas dataframe
 # https://appdividend.com/2020/04/27/python-pandas-how-to-convert-sql-to-dataframe/
@@ -12,6 +11,7 @@ host = 'localhost'
 user = 'root'
 password = 'root'
 database = 'kanonymity'
+
 
 def importTable():
     dbcon = pymysql.connect(host=host, user=user, password=password, database=database)
@@ -22,17 +22,18 @@ def importTable():
         VoterListColumns = ['VoterID', 'Name', 'Age', 'Sex', 'Address', 'Party', 'Postcode']
         VoterListDF = pd.DataFrame(SQL_Query, columns=VoterListColumns)
         print(VoterListDF)
-        #print('The data type of df is: ', type(VoterListDF))
+        # print('The data type of df is: ', type(VoterListDF))
 
     except:
         print("Error: unable to fetch data")
 
     dbcon.close()
 
+
 def dimTableToSQL():
     dimensionTables()
 
-    #print(dimensionTables.postcodeDF0)
+    # print(dimensionTables.postcodeDF0)
 
     engine = create_engine("mysql+pymysql://{user}:{pw}@localhost/{db}"
                            .format(user=user,
@@ -64,6 +65,7 @@ def dimTableToSQL():
     dimensionTables.postcodeDF1.to_sql('postcodesql1', con=engine, if_exists='replace', chunksize=1000)
     dimensionTables.postcodeDF2.to_sql('postcodesql2', con=engine, if_exists='replace', chunksize=1000)
 
+
 def dimSQL():
     indexTables()
     engine = create_engine("mysql+pymysql://{user}:{pw}@localhost/{db}"
@@ -72,7 +74,6 @@ def dimSQL():
                                    db="dimindex"))
     indexTables.sexDimDF.to_sql('sex', con=engine, if_exists='replace', chunksize=1000)
     indexTables.postcodeDimDF.to_sql('postcode', con=engine, if_exists='replace', chunksize=1000)
-
 
 
 def readSQL():
@@ -108,7 +109,6 @@ def generateNodes():
 
     connection.close()
 
-
 # Node generation
 # INSERT INTO Ci(dim1, index1,..., dimi, indexi, parent1, parent2)
 # SELECT p.dim1, p.index1,..., p.dimi−1, p.indexi−1, q.dimi−1, q.indexi−1, p.ID, q.ID
@@ -121,4 +121,3 @@ def generateNodes():
 # Ci: i = quasi-identifier size, C = candidate nodes
 # dimi = quasi identifer columns
 # index = level in dimi table
-

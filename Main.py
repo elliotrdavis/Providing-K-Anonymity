@@ -3,6 +3,7 @@ from ImportData import importTable, dimTableToSQL, readSQL, dimSQL
 from DimensionTables import dimensionTables, candidateNodeTable, generateEdges, dimDFConversion
 from GraphGeneration import incognitoGraph
 
+
 # TODO:
 # Potential for SQL to python at somepoint
 # 1) Make up some input and divide input into T, Q and set of dimension tables
@@ -25,8 +26,7 @@ from GraphGeneration import incognitoGraph
 # Edges (links)
 
 
-#def input():
-
+# def input():
 
 
 # Columns: 'Name','Age','Sex','Address','Party','Postcode'
@@ -42,30 +42,30 @@ def incognito():
     T = VoterListDF
     Q = VoterListColumns
     # set of dim tables = DimensionTables.py
-    n = 2 # num of quasi identifier attributes
+    n = 2  # num of quasi identifier attributes
     candidateNodeTable()
     C = candidateNodeTable.newCandidateConnections
     generateEdges()
     E = generateEdges.edges
     queue = []
-    #print(C)
+    # print(C)
 
-    for i in range(1,n):
+    for i in range(1, n):
         S = C
-        roots = C[int(generateEdges.roots)-1]
-        #print(roots)
+        roots = C[int(generateEdges.roots) - 1]
+        # print(roots)
         # define roots - roots is tuple where no edges directed to them
-        queue.append(roots) # keep queue sorted by height
+        queue.append(roots)  # keep queue sorted by height
         # generateEdges.edges = sorted(generateEdges.edges, key=lambda element: (element[0], element[1]))
         visited = []
         while queue:
             node = queue[0]
             queue.pop(0)
-            #dimDFConversion(node)
+            # dimDFConversion(node)
             if node not in visited:
                 if node in roots:
-                    dimDataframe = dimDFConversion(node) # returns dimDataframe
-                    kValue = frequencySet(dimDataframe) # returns KValue
+                    dimDataframe = dimDFConversion(node)  # returns dimDataframe
+                    kValue = frequencySet(dimDataframe)  # returns KValue
                     # find k value of current node
                 else:
                     dimDataframe = dimDFConversion(node)
@@ -82,29 +82,25 @@ def incognito():
                     print(kValue)
 
 
-
 def frequencySet(dataframe):
-    KValue = dataframe.groupby(['Name','Age','Sex','Address','Party','Postcode']).size().reset_index(name='Count')
-    #print("K-Value = ", KValue['Count'].min())
+    KValue = dataframe.groupby(['Name', 'Age', 'Sex', 'Address', 'Party', 'Postcode']).size().reset_index(name='Count')
+    # print("K-Value = ", KValue['Count'].min())
     KValue = KValue['Count'].min()
-    #print(KValue)
+    # print(KValue)
     return KValue
-
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    #exampleTables()
-    #print(T, Q)
-    #dimensionTables()
-    #importTable()
-    #dimTableToSQL()
-    #readSQL()
-    #dimSQL()
-    #candidateNodeTable()
-    #generateEdges()
-    #incognito()
-    #dimDFConversion()
+    # exampleTables()
+    # print(T, Q)
+    # dimensionTables()
+    # importTable()
+    # dimTableToSQL()
+    # readSQL()
+    # dimSQL()
+    # candidateNodeTable()
+    # generateEdges()
+    # incognito()
+    # dimDFConversion()
     incognitoGraph()
-
-

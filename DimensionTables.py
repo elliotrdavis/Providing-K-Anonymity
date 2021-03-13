@@ -15,6 +15,7 @@ user = 'root'
 password = 'root'
 database = 'dimindex'
 
+
 def candidateNodeTable():
     connection = pymysql.connect(host=host, user=user, password=password, database=database)
 
@@ -32,38 +33,38 @@ def candidateNodeTable():
     sexList = []
     postcodeList = []
     for i in sex:
-        #print(i[2])
+        # print(i[2])
         sexList.append(str(i[2]))
 
     for j in postcode:
-        #print(j[2])
+        # print(j[2])
         postcodeList.append(str(j[2]))
 
     comp = [tuple(postcodeList), tuple(sexList)]
     candidateConnections = list(reduce(lambda a, b: [(p[1], *p[0]) for p in product(a, b)], comp))
-    #print(candidateConnections)
+    # print(candidateConnections)
     # turn this into df
-    #[('0', '0'), ('1', '0'), ('0', '1'), ('1', '1'), ('0', '2'), ('1', '2')]
+    # [('0', '0'), ('1', '0'), ('0', '1'), ('1', '1'), ('0', '2'), ('1', '2')]
     candidateNodeTable.newCandidateConnections = []
     dimensions = ('Sex', 'Postcode')
-    for tuple1 in candidateConnections: # for each tuple in above list
+    for tuple1 in candidateConnections:  # for each tuple in above list
         newTuple = []
-        for index in range(len(tuple1)): # for each index in the tuple
+        for index in range(len(tuple1)):  # for each index in the tuple
             newTuple.append(dimensions[index])
             newTuple.append(tuple1[index])
         candidateNodeTable.newCandidateConnections.append(newTuple)
-    #print(newCandidateConnections)
+    # print(newCandidateConnections)
     # add to dataframe
     candidateColumns = ['dim1', 'index1', 'dim2', 'index2']
     candidateConnectionsDF = pd.DataFrame(candidateNodeTable.newCandidateConnections, columns=candidateColumns)
-    #print(candidateConnectionsDF)
-    #upload to sql server
+    # print(candidateConnectionsDF)
+    # upload to sql server
     engine = create_engine("mysql+pymysql://{user}:{pw}@localhost/{db}"
                            .format(user=user,
                                    pw=password,
                                    db=database))
     candidateConnectionsDF.to_sql('candidate', con=engine, if_exists='replace', chunksize=1000)
-    #print(candidateConnectionsDF)
+    # print(candidateConnectionsDF)
     # comp = [('0', '1', '2'), ('0', '1'), ('0', '1',)]
     # print(list(reduce(lambda a, b: [(p[1], *p[0]) for p in product(a, b)], comp)))
 
@@ -76,47 +77,48 @@ def generateEdges():
     # Subset property: let T be a relation, and let Q be a set of attributes in T.
     # If T is k-anonymous with respect to Q, then T is k-anonymous with respect to any set of
     # attributes P such that P < Q
-    #print(candidateNodeTable.newCandidateConnections)
+    # print(candidateNodeTable.newCandidateConnections)
     # generate edges
     # edges are tuples, create list of tuples and append
     generateEdges.edges = []
     # for each node create its edges
-    for node in candidateNodeTable.newCandidateConnections: ## go through every node in candidate nodes
-        #print('from:', node)
+    for node in candidateNodeTable.newCandidateConnections:  ## go through every node in candidate nodes
+        # print('from:', node)
         # go through each index, check if legal then add to edge list
-        for index in range(1, len(node), 2): # go through every index in each node
-            #print(node[index])
+        for index in range(1, len(node), 2):  # go through every index in each node
+            # print(node[index])
             nextNode = int(node[index]) + 1
-            #print(nextNode)
-            for node2 in range(candidateNodeTable.newCandidateConnections.index(node)+1, len(candidateNodeTable.newCandidateConnections)):
+            # print(nextNode)
+            for node2 in range(candidateNodeTable.newCandidateConnections.index(node) + 1,
+                               len(candidateNodeTable.newCandidateConnections)):
                 # iterate through every other node, check for match
-                #print('search through for',node[index], candidateNodeTable.newCandidateConnections[node2])
+                # print('search through for',node[index], candidateNodeTable.newCandidateConnections[node2])
                 nextNodeSex = int(node[1]) + 1
-                if(candidateNodeTable.newCandidateConnections[node2][1] == str(nextNodeSex) and
+                if (candidateNodeTable.newCandidateConnections[node2][1] == str(nextNodeSex) and
                         candidateNodeTable.newCandidateConnections[node2][3] == node[3]):
-                    #print('to', candidateNodeTable.newCandidateConnections[node2])
-                    generateEdges.edges.append((candidateNodeTable.newCandidateConnections.index(node)+1,node2+1))
+                    # print('to', candidateNodeTable.newCandidateConnections[node2])
+                    generateEdges.edges.append((candidateNodeTable.newCandidateConnections.index(node) + 1, node2 + 1))
 
                 nextNodePostcode = int(node[3]) + 1
-                if(candidateNodeTable.newCandidateConnections[node2][3] == str(nextNodePostcode) and
+                if (candidateNodeTable.newCandidateConnections[node2][3] == str(nextNodePostcode) and
                         candidateNodeTable.newCandidateConnections[node2][1] == node[1]):
-                    #print('to', candidateNodeTable.newCandidateConnections[node2])
-                    generateEdges.edges.append((candidateNodeTable.newCandidateConnections.index(node)+1, node2+1))
+                    # print('to', candidateNodeTable.newCandidateConnections[node2])
+                    generateEdges.edges.append((candidateNodeTable.newCandidateConnections.index(node) + 1, node2 + 1))
 
-    #print('orginal list', generateEdges.edges)
+    # print('original list', generateEdges.edges)
     generateEdges.edges = removeDuplicates(generateEdges.edges)
-    #print('remove dupes', generateEdges.edges)
+    # print('remove dupes', generateEdges.edges)
     generateEdges.edges = sorted(generateEdges.edges, key=lambda element: (element[0], element[1]))
-    #print('sorted', generateEdges.edges)
+    # print('sorted', generateEdges.edges)
 
     root1 = []
     root2 = []
     for i in generateEdges.edges:
         root1.append(i[0])
         root2.append(i[1])
-    generateEdges.roots = np.setdiff1d(root1,root2)
-    #print(roots)
-    ## list i need: (1,2) (1,3) (2,4) (3,4) (3,5) (4,6) (5,6)
+    generateEdges.roots = np.setdiff1d(root1, root2)
+    # print(roots)
+    # list i need: (1,2) (1,3) (2,4) (3,4) (3,5) (4,6) (5,6)
 
 
 def removeDuplicates(edges):
@@ -124,11 +126,12 @@ def removeDuplicates(edges):
 
 
 def indexTables():
-    sexDim = [["Sex", 0],["Sex", 1]]
-    postcodeDim = [["Postcode", 0], ["Postcode", 1],["Postcode", 2]]
+    sexDim = [["Sex", 0], ["Sex", 1]]
+    postcodeDim = [["Postcode", 0], ["Postcode", 1], ["Postcode", 2]]
     dimColumns = ['dim', 'index']
     indexTables.sexDimDF = pd.DataFrame(data=sexDim, columns=dimColumns)
     indexTables.postcodeDimDF = pd.DataFrame(data=postcodeDim, columns=dimColumns)
+
 
 def dimensionTables():
     # For each column in table
@@ -145,12 +148,12 @@ def dimensionTables():
     addressDFList = []
     ageDFList = []
     postcodeDFList = []
-    for column in VoterListColumns: # for each column in the table
-        #print(column)
+    for column in VoterListColumns:  # for each column in the table
+        # print(column)
         # 1D Items
-        if (column == 'Party'):
+        if column == 'Party':
             party0 = []
-            for item in VoterListDF[column]: # for each item in column
+            for item in VoterListDF[column]:  # for each item in column
                 party0.append(item)
             p0 = {'Party': party0}
             dimensionTables.partyDF0 = pd.DataFrame(data=p0)
@@ -158,7 +161,7 @@ def dimensionTables():
             dimensionTables.partyDF = partyDFList
 
         # 2D Items
-        if(column == 'Name'):
+        if column == 'Name':
             name0 = []
             name1 = []
             for item in VoterListDF[column]:
@@ -173,7 +176,7 @@ def dimensionTables():
             nameDFList.append(dimensionTables.nameDF1)
             dimensionTables.nameDF = nameDFList
 
-        if (column == 'Sex'):
+        if column == 'Sex':
             sex0 = []
             sex1 = []
             for item in VoterListDF[column]:
@@ -188,7 +191,7 @@ def dimensionTables():
             sexDFList.append(dimensionTables.sexDF1)
             dimensionTables.sexDF = sexDFList
 
-        if (column == 'Address'):
+        if column == 'Address':
             address0 = []
             address1 = []
             for item in VoterListDF[column]:
@@ -204,39 +207,39 @@ def dimensionTables():
             dimensionTables.addressDF = addressDFList
 
         # 3D Items
-        if (column == 'Age'):
+        if column == 'Age':
             age0 = []
             age1 = []
             age2 = []
             for item in VoterListDF[column]:
                 age0.append(item)
                 if 0 <= item <= 5:
-                    range = '0<=x<=5'
+                    ageRange = '0<=x<=5'
                 if 5 < item <= 10:
-                    range = '5<x<=10'
+                    ageRange = '5<x<=10'
                 if 10 < item <= 15:
-                    range = '10<x<=15'
+                    ageRange = '10<x<=15'
                 if 15 < item <= 20:
-                    range = '15<x<=20'
+                    ageRange = '15<x<=20'
                 if 20 < item <= 25:
-                    range = '20<x<=25'
+                    ageRange = '20<x<=25'
                 if 25 < int(item) <= 30:
-                    range = "25<x<=30"
+                    ageRange = "25<x<=30"
                 if 30 < int(item) <= 35:
-                    range = "30<x<=35"
+                    ageRange = "30<x<=35"
                 if 35 < int(item) <= 40:
-                    range = '35<x<=40'
-                age1.append(range)
+                    ageRange = '35<x<=40'
+                age1.append(ageRange)
 
-                if range == '0<=x<=5' or range == '5<x<=10':
-                    range = '0<=x<=10'
-                if range == '10<x<=15' or range == '15<x<=20':
-                    range = '10<x<=20'
-                if range == '20<x<=25' or range == '25<x<=30':
-                    range = '20<x<=30'
-                if range == '30<x<=35' or range == '35<x<=40':
-                    range = '30<x<=40'
-                age2.append(range)
+                if ageRange == '0<=x<=5' or ageRange == '5<x<=10':
+                    ageRange = '0<=x<=10'
+                if ageRange == '10<x<=15' or ageRange == '15<x<=20':
+                    ageRange = '10<x<=20'
+                if ageRange == '20<x<=25' or ageRange == '25<x<=30':
+                    ageRange = '20<x<=30'
+                if ageRange == '30<x<=35' or ageRange == '35<x<=40':
+                    ageRange = '30<x<=40'
+                age2.append(ageRange)
 
             ag0 = {'Age': age0}
             ag1 = {'Age': age1}
@@ -249,7 +252,7 @@ def dimensionTables():
             ageDFList.append(dimensionTables.ageDF2)
             dimensionTables.ageDF = ageDFList
 
-        if (column == 'Postcode'):
+        if column == 'Postcode':
             postcode0 = []
             postcode1 = []
             postcode2 = []
@@ -268,28 +271,25 @@ def dimensionTables():
             postcodeDFList.append(dimensionTables.postcodeDF2)
             dimensionTables.postcodeDF = postcodeDFList
 
+
 def dimDFConversion(node):
     dimensionTables()
     sexList = dimensionTables.sexDF
     postcodeList = dimensionTables.postcodeDF
 
     for index in range(1, len(node), 2):
-        name = node[index-1]
+        name = node[index - 1]
         dim = int(node[index])
         if name == 'Sex':
             temp = sexList[dim]
         if name == 'Postcode':
             temp = postcodeList[dim]
 
-        #print(temp)
-        #data1 = {name: temp}
-        #tempDF = pd.DataFrame(data=data1)
-        #print(tempDF)
+        # print(temp)
+        # data1 = {name: temp}
+        # tempDF = pd.DataFrame(data=data1)
+        # print(tempDF)
         VoterListDF[name] = temp[name]
-    #print(VoterListDF)
+    # print(VoterListDF)
     dimDataframe = VoterListDF
     return dimDataframe
-
-
-
-
