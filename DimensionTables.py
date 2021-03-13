@@ -16,7 +16,7 @@ password = 'root'
 database = 'dimindex'
 
 
-def candidateNodeTable():
+def candidateNodeTable():  # Generates and returns candidate node table
     # connection = pymysql.connect(host=host, user=user, password=password, database=database)
     #
     # my_cursor = connection.cursor()
@@ -36,30 +36,43 @@ def candidateNodeTable():
     age = [["Age", 0], ["Age", 1], ["Age", 2]]
     postcode = [["Postcode", 0], ["Postcode", 1], ["Postcode", 2]]
 
-    nameList = []
-    sexList = []
-    addressList = []
-    ageList = []
-    postcodeList = []
+    quasiIdentifiers = [name, sex, postcode]  # add what quasi identifiers here
+    # put smaller attributes first for nicer table
 
-    for i in sex:  # for 2 attribute lists
-        # print(i[2])
-        nameList.append(str(i[1]))
-        sexList.append(str(i[1]))
-        addressList.append(str(i[1]))
+    # nameList = ['0', '1']
+    # sexList = ['0', '1']
+    # addressList = ['0', '1']
+    # ageList = ['0', '1', '2']
+    # postcodeList = ['0', '1', '2']
 
-    for i in postcode:  # for 3 attribute lists
-        # print(j[2])
-        ageList.append(str(i[1]))
-        postcodeList.append(str(i[1]))
+    # for i in sex:  # for 2 attribute lists
+    #     # print(i[2])
+    #     nameList.append(str(i[1]))
+    #     sexList.append(str(i[1]))
+    #     addressList.append(str(i[1]))
+    #
+    # for i in postcode:  # for 3 attribute lists
+    #     # print(j[2])
+    #     ageList.append(str(i[1]))
+    #     postcodeList.append(str(i[1]))
+    comp = []
+    dimensions = []
+    for lists in quasiIdentifiers:
+        dimensions.append(lists[0][0])
+        temp = []
+        for var in lists:
+            temp.append(str(var[1]))
+        comp.insert(0,tuple(temp))
+    dimensions = tuple(dimensions)
 
-    comp = [tuple(postcodeList), tuple(ageList), tuple(addressList), tuple(sexList), tuple(nameList)]
+    # print(comp, dimensions)
+    # comp = [tuple(postcodeList), tuple(ageList), tuple(addressList), tuple(sexList), tuple(nameList)]
     candidateConnections = list(reduce(lambda a, b: [(p[1], *p[0]) for p in product(a, b)], comp))
     # print(candidateConnections)
     # turn this into df
     # [('0', '0'), ('1', '0'), ('0', '1'), ('1', '1'), ('0', '2'), ('1', '2')]
     newCandidateConnections = []
-    dimensions = ('Name', 'Sex', 'Address', 'Age', 'Postcode')
+    # dimensions = ('Name', 'Sex', 'Address', 'Age', 'Postcode')
     for tuple1 in candidateConnections:  # for each tuple in above list
         newTuple = []
         for index in range(len(tuple1)):  # for each index in the tuple
@@ -68,8 +81,8 @@ def candidateNodeTable():
         newCandidateConnections.append(newTuple)
     # print(newCandidateConnections)
     # add to dataframe
-    candidateColumns = ['dim1', 'index1', 'dim2', 'index2', 'dim3', 'index3', 'dim4', 'index4', 'dim5', 'index5']
-    candidateConnectionsDF = pd.DataFrame(newCandidateConnections, columns=candidateColumns)
+    #candidateColumns = ['dim1', 'index1', 'dim2', 'index2', 'dim3', 'index3', 'dim4', 'index4', 'dim5', 'index5']
+    candidateConnectionsDF = pd.DataFrame(newCandidateConnections)
     # print(candidateConnectionsDF)
     # upload to sql server
     engine = create_engine("mysql+pymysql://{user}:{pw}@localhost/{db}"
@@ -93,45 +106,70 @@ def generateEdges():
     # print(candidateNodeTable.newCandidateConnections)
     # generate edges
     # edges are tuples, create list of tuples and append
-    generateEdges.edges = []
+
+    edges = []
     # for each node create its edges
-    for node in candidateTable:  # go through every node in candidate nodes
-        # print('from:', node)
-        # go through each index, check if legal then add to edge list
-        for index in range(1, len(node), 2):  # go through every index in each node
-            # print(node[index])
+    for node in candidateTable: # iterates through all the nodes in candidateTable
+        print(node)
+        for index in range(1,len(node),2): # iterates through all the possible next node ids
             nextNode = int(node[index]) + 1
-            # print(nextNode)
-            for node2 in range(candidateTable.index(node) + 1,
-                               len(candidateTable)):
-                # iterate through every other node, check for match
-                # print('search through for',node[index], candidateNodeTable.newCandidateConnections[node2])
-                nextNodeSex = int(node[1]) + 1
-                if (candidateTable[node2][1] == str(nextNodeSex) and
-                        candidateTable[node2][3] == node[3]):
-                    # print('to', candidateNodeTable.newCandidateConnections[node2])
-                    generateEdges.edges.append((candidateTable.index(node) + 1, node2 + 1))
+            print("index, node:", index, nextNode)
+            length = []
+            for i in range(1,len(node),2):
+                # print(i)
+                length.append(i)
+            # length = [1,3,5]
+            length.remove(index)
+            for nodeCheck in range(candidateTable.index(node) + 1, len(candidateTable)):
+                # if another node matches with nextNode then add to edge
+                # check against current nodes
+                total = 0
+                for i in length:
+                    if candidateTable[nodeCheck][i] == node[i]:
+                        total += 1
+                print("nodecheck", candidateTable[nodeCheck])
+                if candidateTable[nodeCheck][index] == str(nextNode) and total == len(length):
+                    print("matching node", candidateTable[nodeCheck])
+                    edges.append((candidateTable.index(node) + 1, nodeCheck + 1))
+                    break
+    # for node in candidateTable:  # go through every node in candidate nodes
+    #     # print('from:', node)
+    #     # go through each index, check if legal then add to edge list
+    #     for index in range(1, len(node), 2):  # go through every index in each node
+    #         # print(node[index])
+    #         nextNode = int(node[index]) + 1
+    #         # print(nextNode)
+    #         for node2 in range(candidateTable.index(node) + 1,
+    #                            len(candidateTable)):
+    #             # iterate through every other node, check for match
+    #             # print('search through for',node[index], candidateNodeTable.newCandidateConnections[node2])
+    #             nextNodeSex = int(node[1]) + 1
+    #             if (candidateTable[node2][1] == str(nextNodeSex) and
+    #                     candidateTable[node2][3] == node[3]):
+    #                 # print('to', candidateNodeTable.newCandidateConnections[node2])
+    #                 edges.append((candidateTable.index(node) + 1, node2 + 1))
+    #
+    #             nextNodePostcode = int(node[3]) + 1
+    #             if (candidateTable[node2][3] == str(nextNodePostcode) and
+    #                     candidateTable[node2][1] == node[1]):
+    #                 # print('to', candidateNodeTable.newCandidateConnections[node2])
+    #                 edges.append((candidateTable.index(node) + 1, node2 + 1))
 
-                nextNodePostcode = int(node[3]) + 1
-                if (candidateTable[node2][3] == str(nextNodePostcode) and
-                        candidateTable[node2][1] == node[1]):
-                    # print('to', candidateNodeTable.newCandidateConnections[node2])
-                    generateEdges.edges.append((candidateTable.index(node) + 1, node2 + 1))
-
-    # print('original list', generateEdges.edges)
-    generateEdges.edges = removeDuplicates(generateEdges.edges)
-    # print('remove dupes', generateEdges.edges)
-    generateEdges.edges = sorted(generateEdges.edges, key=lambda element: (element[0], element[1]))
-    # print('sorted', generateEdges.edges)
+    # print('original list', edges)
+    edges = removeDuplicates(edges)
+    # print('remove dupes', edges)
+    edges = sorted(edges, key=lambda element: (element[0], element[1]))
+    print('sorted', edges)
 
     root1 = []
     root2 = []
-    for i in generateEdges.edges:
+    for i in edges:
         root1.append(i[0])
         root2.append(i[1])
-    generateEdges.roots = np.setdiff1d(root1, root2)
+    roots = np.setdiff1d(root1, root2)
     # print(roots)
     # list i need: (1,2) (1,3) (2,4) (3,4) (3,5) (4,6) (5,6)
+    return edges
 
 
 def removeDuplicates(edges):

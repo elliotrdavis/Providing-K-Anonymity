@@ -6,10 +6,9 @@ from DimensionTables import candidateNodeTable, generateEdges
 
 def incognitoGraph():
     G = nx.Graph()
-    candidateNodeTable()
-    generateEdges()
-    C = candidateNodeTable.newCandidateConnections
-    E = generateEdges.edges
+
+    C = candidateNodeTable()
+    E = generateEdges()
     # print(E)
     # print(C)
     # adding just one node:
@@ -43,7 +42,7 @@ def incognitoGraph():
     plt.savefig("Graphs/incognito2attr.png")  # save as png
     plt.show()  # display
 
-    print("Nodes of graph: ")
-    print(G.nodes())
-    print("Edges of graph: ")
-    print(G.edges())
+    # print("Nodes of graph: ")
+    # print(G.nodes())
+    # print("Edges of graph: ")
+    # print(G.edges())
