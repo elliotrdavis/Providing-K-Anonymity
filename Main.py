@@ -1,6 +1,7 @@
 from KValue import VoterListDF, VoterListColumns, exampleTables
 from ImportData import importTable, dimTableToSQL, readSQL, dimSQL
 from DimensionTables import dimensionTables, candidateNodeTable, generateEdges, dimDFConversion
+from GraphGeneration import incognitoGraph
 
 # TODO:
 # Potential for SQL to python at somepoint
@@ -102,7 +103,8 @@ if __name__ == '__main__':
     #dimSQL()
     #candidateNodeTable()
     #generateEdges()
-    incognito()
+    #incognito()
     #dimDFConversion()
+    incognitoGraph()
 
 
