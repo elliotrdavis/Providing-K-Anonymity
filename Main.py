@@ -1,6 +1,6 @@
 from KValue import VoterListDF, VoterListColumns, exampleTables
 from ImportData import importTable, dimTableToSQL, readSQL
-from DimensionTables import dimensionTables, candidateNodeTable, generateEdges, dimDFConversion
+from DimensionTables import candidateNodeTable, generateEdges, dimDFConversion, convertColumns
 from GraphGeneration import incognitoGraph
 
 
@@ -50,10 +50,9 @@ def incognito():
     Q = VoterListColumns
     # set of dim tables = DimensionTables.py
     n = 2  # num of quasi identifier attributes
-    candidateNodeTable()
-    C = candidateNodeTable.newCandidateConnections
-    generateEdges()
-    E = generateEdges.edges
+    C = candidateNodeTable()
+    E = generateEdges()
+    convertColumns() # creates columns dfs
     queue = []
     # print(C)
 
@@ -80,18 +79,24 @@ def incognito():
                     # find k value of parent
 
                 # check if frequencySet is k-anonymous
+                print(dimDataframe, )
                 if kValue == n:
                     print(dimDataframe, kValue)
                     break;
                 else:
                     S.pop(0)
-                    queue.append(S[0])
+                    if len(S) != 0:
+                        queue.append(S[0])
+                    else:
+                        print(dimDataframe, kValue)
+                        break
                     print(kValue)
 
 
 def frequencySet(dataframe):
     KValue = dataframe.groupby(['Name', 'Age', 'Sex', 'Address', 'Party', 'Postcode']).size().reset_index(name='Count')
     # print("K-Value = ", KValue['Count'].min())
+    print(KValue)
     KValue = KValue['Count'].min()
     # print(KValue)
     return KValue
@@ -108,6 +113,6 @@ if __name__ == '__main__':
     # dimSQL()
     # candidateNodeTable()
     # generateEdges()
-    # incognito()
+    incognito()
     # dimDFConversion()
-    incognitoGraph()
+    # incognitoGraph()

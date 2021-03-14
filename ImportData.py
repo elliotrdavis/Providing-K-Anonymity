@@ -1,6 +1,6 @@
 import pymysql
 import pandas as pd
-from DimensionTables import dimensionTables, indexTables
+from DimensionTables import indexTables
 from sqlalchemy import create_engine
 
 # This class imports data from my SQL database and converts it into
