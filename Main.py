@@ -1,40 +1,16 @@
-from KValue import VoterListDF, VoterListColumns, exampleTables
-from ImportData import importTable, dimTableToSQL, readSQL
+from KValue import VoterListDF, VoterListColumns
 from DimensionTables import candidateNodeTable, generateEdges, dimDFConversion, convertColumns
 from GraphGeneration import incognitoGraph
 
 
 # TODO:
-# Ability for n attributes
-# Fix up incognito()
-#
-#
-#
-#
-#
-# Potential for SQL to python at somepoint
-# 1) Make up some input and divide input into T, Q and set of dimension tables
-# Code dimension tables 
-# DONE
-#  https://appdividend.com/2020/04/27/python-pandas-how-to-convert-sql-to-dataframe/
-# Learn how to make the domain generalization hierarchies of attributes in Q
-# Read up on incognito properties
-# 2) Start to translate pseudocode into python
-# Make graph of generalizations (C and E)
-# Graph consists of the all the different combinations of nodes - check rules
-# 
-# Input
-# A table T to be k-anonymised - MedicalList and VoterList
-# A set Q of n quasi-identifier attributes
-# A set of dimension tables
+# Change copy dimDFConversion to do 2 attribute tables
+# Search through each graph, calculate frequency sets
+# New function GraphGeneration to generate combination of all 2 attribute tables
 #
 # Output: the set of k-anonymous full-domain generalizations of T
 # Nodes (verticies/points)
 # Edges (links)
-
-
-# def input():
-
 
 # Columns: 'Name','Age','Sex','Address','Party','Postcode'
 # Dimension table: current requirements
@@ -49,26 +25,29 @@ def incognito():
     T = VoterListDF
     Q = VoterListColumns
     # set of dim tables = DimensionTables.py
-    n = 2  # num of quasi identifier attributes
+    n = len(VoterListColumns)  # num of quasi identifier attributes
     C = candidateNodeTable()
     E = generateEdges()
-    convertColumns() # creates columns dfs
+    convertColumns()  # creates columns dfs
     queue = []
     # print(C)
 
+    # for each 2-attribute generalization graphs
     for i in range(1, n):
         S = C
         roots = C[int(generateEdges.roots) - 1]
-        # print(roots)
         # define roots - roots is tuple where no edges directed to them
         queue.append(roots)  # keep queue sorted by height
         # generateEdges.edges = sorted(generateEdges.edges, key=lambda element: (element[0], element[1]))
         visited = []
+
+        # while queue is not empty
         while queue:
             node = queue[0]
             queue.pop(0)
-            # dimDFConversion(node)
+
             if node not in visited:
+
                 if node in roots:
                     dimDataframe = dimDFConversion(node)  # returns dimDataframe
                     kValue = frequencySet(dimDataframe)  # returns KValue
@@ -82,7 +61,7 @@ def incognito():
                 print(dimDataframe, )
                 if kValue == n:
                     print(dimDataframe, kValue)
-                    break;
+                    break
                 else:
                     S.pop(0)
                     if len(S) != 0:
@@ -104,15 +83,4 @@ def frequencySet(dataframe):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    # exampleTables()
-    # print(T, Q)
-    # dimensionTables()
-    # importTable()
-    # dimTableToSQL()
-    # readSQL()
-    # dimSQL()
-    # candidateNodeTable()
-    # generateEdges()
     incognito()
-    # dimDFConversion()
-    # incognitoGraph()
