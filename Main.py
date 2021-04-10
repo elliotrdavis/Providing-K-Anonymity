@@ -1,81 +1,181 @@
 from KValue import VoterListDF, VoterListColumns
-from DimensionTables import candidateNodeTable, generateEdges, dimDFConversion, convertColumns
+from DimensionTables import candidateNodeTable, generateEdges, dimDFConversionIncognito, convertColumns, candidateNodeTableIncognito, generateEdgesIncognito
 from GraphGeneration import incognitoGraph
 
+"""
+TODO:
+Optimise column generation
+- Change copy dimDFConversion to do 2 attribute tables - DONE
+- Search through each graph, calculate frequency sets
+- New function GraphGeneration to generate combination of all 2 attribute tables
 
-# TODO:
-# Change copy dimDFConversion to do 2 attribute tables
-# Search through each graph, calculate frequency sets
-# New function GraphGeneration to generate combination of all 2 attribute tables
-#
-# Output: the set of k-anonymous full-domain generalizations of T
-# Nodes (verticies/points)
-# Edges (links)
+Graph generations:
+    - Joins graphs
+    - Prunes graphs
+    - Generates full-domain generation
 
-# Columns: 'Name','Age','Sex','Address','Party','Postcode'
-# Dimension table: current requirements
-# Name: P0 (name), P1 (-)
-# Age: P0 (original), P1 (5 age range), P2 (10 age range), P3 (20 age range)
-# Sex: P0 (male/female), P1 (-)
-# Address: P0 (address), P1 (-)
-# Party: P0 (important info)
-# Postcode: P0 (original), P1 (First 3 letters), P2 (First 2 Letters)
+
+Output: the set of k-anonymous full-domain generalizations of T
+Nodes (verticies/points)
+Edges (links)
+
+Columns: 'Name','Age','Sex','Address','Party','Postcode'
+Dimension table: current requirements
+Name: P0 (name), P1 (-)
+Age: P0 (original), P1 (5 age range), P2 (10 age range), P3 (20 age range)
+Sex: P0 (male/female), P1 (-)
+Address: P0 (address), P1 (-)
+Party: P0 (important info)
+Postcode: P0 (original), P1 (First 3 letters), P2 (First 2 Letters)
+"""
+
 
 def incognito():
-    T = VoterListDF
-    Q = VoterListColumns
-    # set of dim tables = DimensionTables.py
-    n = len(VoterListColumns)  # num of quasi identifier attributes
-    C = candidateNodeTable()
-    E = generateEdges()
-    convertColumns()  # creates columns dfs
-    queue = []
-    # print(C)
+    kanonymity = 2
+    C = candidateNodeTableIncognito()
+    E = generateEdgesIncognito(C)
 
-    # for each 2-attribute generalization graphs
-    for i in range(1, n):
-        S = C
-        roots = C[int(generateEdges.roots) - 1]
-        # define roots - roots is tuple where no edges directed to them
-        queue.append(roots)  # keep queue sorted by height
-        # generateEdges.edges = sorted(generateEdges.edges, key=lambda element: (element[0], element[1]))
+    convertColumns()
+    queue = []
+    SList = []
+
+    for i, j in zip(C, E):
+
+        # i is the nodes of the original lattice, j is the edges of the original lattice
+        S = i[:]  # nodes of current lattice
+        SE = j[:]  # edges of current lattice
+        roots = []
+        #print(S[0])
+        roots.append(S[0])
+        # print(roots)
+        # queue.append(roots)
+        queue.append(S[0])
+        # print(queue)
         visited = []
 
-        # while queue is not empty
         while queue:
             node = queue[0]
             queue.pop(0)
+            #print(S)
 
             if node not in visited:
 
                 if node in roots:
-                    dimDataframe = dimDFConversion(node)  # returns dimDataframe
+                    # print(node[0])
+                    dimDataframe = dimDFConversionIncognito(node)  # returns dimDataframe
+                    # print(dimDataframe)
                     kValue = frequencySet(dimDataframe)  # returns KValue
-                    # find k value of current node
+                    # print(kValue)
+                    # Compute frequency set by replacing values in i in original table
                 else:
-                    dimDataframe = dimDFConversion(node)
-                    kValue = frequencySet(dimDataframe)
-                    # find k value of parent
+                    #print(node[0])
+                    dimDataframe = dimDFConversionIncognito(node)  # returns dimDataframe
+                    kValue = frequencySet(dimDataframe)  # returns KValue
+                    # print(dimDataframe)
+                    # print(kValue)
+                    # Compute frequency set by replacing values in i parent frequency
 
-                # check if frequencySet is k-anonymous
-                print(dimDataframe, )
-                if kValue == n:
-                    print(dimDataframe, kValue)
-                    break
+                if kValue >= kanonymity:
+                    # print(kValue)
+                    # if match then mark all direct generalizations by adding to visited
+                    # print(S)
+                    # print(SE)
+                    # print(i)
+                    index = i.index(S[0]) + 1
+                    # print("index")
+                    # print(index)
+                    visited.append(i[index-1])
+                    for edge in SE:
+                        if edge[0] == index:
+                            visited.append(i[edge[1]-1])
+                    # frequencySet1 = 0
                 else:
+                    # if kvalue false then search through rest of lattice by height, removing edges along the way
+                    index = i.index(S[0]) + 1
+                    SE[:] = [edge for edge in SE if index != edge[0]]
                     S.pop(0)
-                    if len(S) != 0:
+                    if len(S) > 0:
                         queue.append(S[0])
+                        # print(queue)
+                        # print(S[0])
                     else:
-                        print(dimDataframe, kValue)
-                        break
-                    print(kValue)
+                        print("queue is empty")
+        # print(S)
+        # print(SE)
+        SList.append(S)
+    graphGen(SList)
+    # Graph generation here
+
+
+def graphGen(nodes):
+    # joining phase
+    genLattice = []
+    for firstNode in nodes[0]:
+        genLattice.append(firstNode)
+
+    nodes.pop(0)
+    for node in nodes[:-1]:
+        for gen in node:
+            #print("Gen: " + str(gen))
+            for lat in genLattice:
+
+                if lat[-1] == gen[1] and lat[-2] == gen[0]:
+                    lat.append(gen[2])
+                    lat.append(gen[3])
+                # if lat[-1] != gen[1] and lat[-2] == gen[0]:
+                #     print("hello")
+                #     lat[-1] = gen[1]
+                #     genLattice.append(lat)
+                if lat[-4] == gen[0] and lat[-3] == gen[1] and lat[-2] == gen[2] and lat[-1] != gen[3]:
+                    # lat[-1] = gen[3]
+                    newLat = lat[:]
+                    newLat[-1] = gen[3]
+                    genLattice.append(newLat)
+                #print("lat: " + str(lat))
+
+            #'genLattice.append(gen)
+        #print(node)
+    print("Gen Lattice")
+    print(genLattice)
+    # for node in genLattice:
+    #     dimDataframe = dimDFConversionIncognito(node)  # returns dimDataframe
+    #     print(dimDataframe)
+    #     kValue = frequencySet(dimDataframe)  # returns KValue
+    #     print(kValue)
+
+
+
+
+"""
+[['Name', '1', 'Sex', '0'], ['Name', '0', 'Sex', '1'], ['Name', '1', 'Sex', '1']]
+[['Sex', '0', 'Address', '1'], ['Sex', '1', 'Address', '1']]
+[['Address', '1', 'Age', '2']]
+[['Age', '2', 'Postcode', '1'], ['Age', '0', 'Postcode', '2'], ['Age', '1', 'Postcode', '2'], ['Age', '2', 'Postcode', '2']]
+
+Generate these nodes
+Name 1, Sex 0, Address 1, Age 2, Postcode 1, //Name 1
+Name 0, Sex 1, Address 1, Age 2, Postcode 1, //Name 1
+Name 1, Sex 1, Address 1, Age 2, Postcode 1, //Name 1
+Name 1, Sex 0, Address 1, Age 2, Postcode 2, //Name 0/1
+Name 0, Sex 1, Address 1, Age 2, Postcode 2, //Name 0/1
+Name 1, Sex 1, Address 1, Age 2, Postcode 2, //Name 0/1
+
+Then generate edges..
+if node where 1 attribute is 1 above then connect
+
+Then double check if k value is correct
+"""
+
+
+
 
 
 def frequencySet(dataframe):
-    KValue = dataframe.groupby(['Name', 'Age', 'Sex', 'Address', 'Party', 'Postcode']).size().reset_index(name='Count')
+    # print(dataframe)
+    # print(dataframe.columns)
+    KValue = dataframe.groupby(list(dataframe.columns)).size().reset_index(name='Count')
     # print("K-Value = ", KValue['Count'].min())
-    print(KValue)
+    #print(KValue)
     KValue = KValue['Count'].min()
     # print(KValue)
     return KValue
@@ -84,3 +184,5 @@ def frequencySet(dataframe):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     incognito()
+    # incognitoGraph()
+

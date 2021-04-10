@@ -22,6 +22,6 @@ def incognitoGraph():
         edge3 = (edge1String, edge2String)
         G.add_edge(*edge3)
 
-    nx.draw(G,with_labels=True)
+    nx.draw(G,with_labels=False)
     plt.savefig("Graphs/incognito2attr.png")  # save as png
     plt.show()  # display

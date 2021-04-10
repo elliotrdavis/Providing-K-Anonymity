@@ -1,36 +1,111 @@
 # Create dimension tables
 
 import pandas as pd
-import pymysql
 from functools import reduce
 from itertools import product
 import numpy as np
-
-from sqlalchemy import create_engine
-
 from KValue import VoterListDF, VoterListColumns
 
-host = 'localhost'
-user = 'root'
-password = 'root'
-database = 'dimindex'
 
-def candidateNodeTable():  # Generates and returns candidate node table
-
+# Return set of generalization lattice's
+def candidateNodeTableIncognito():
     name = [["Name", 0], ["Name", 1]]
     sex = [["Sex", 0], ["Sex", 1]]
     address = [["Address", 0], ["Address", 1]]
     age = [["Age", 0], ["Age", 1], ["Age", 2]]
     postcode = [["Postcode", 0], ["Postcode", 1], ["Postcode", 2]]
 
-    quasiIdentifiers = [name, sex, address, age, postcode]  # add what quasi identifiers here
+    # What are all possible generalization graphs?
+    # name - sex, address, age, postcode
+    # sex - address, age, postcode
+    # address - age, postcode
+    # age - postcode
     # put smaller attributes first for nicer table
+    twoAttributeList = [[name, sex],[sex,address],[address,age],[age,postcode],[name,postcode]]
+    # add what quasi identifiers here
+    allCandidateConnection = []
 
-    # nameList = ['0', '1']
-    # sexList = ['0', '1']
-    # addressList = ['0', '1']
-    # ageList = ['0', '1', '2']
-    # postcodeList = ['0', '1', '2']
+    for twoAttribute in twoAttributeList:
+        comp = []
+        dimensions = []
+        for lists in twoAttribute:
+            dimensions.append(lists[0][0])
+            temp = []
+            for var in lists:
+                temp.append(str(var[1]))
+            comp.insert(0,tuple(temp))
+        dimensions = tuple(dimensions)
+
+        candidateConnections = list(reduce(lambda a, b: [(p[1], *p[0]) for p in product(a, b)], comp))
+
+        # turn this into df
+        # [('0', '0'), ('1', '0'), ('0', '1'), ('1', '1'), ('0', '2'), ('1', '2')]
+        newCandidateConnections = []
+        # dimensions = ('Name', 'Sex', 'Address', 'Age', 'Postcode')
+        for tuple1 in candidateConnections:  # for each tuple in above list
+            newTuple = []
+            for index in range(len(tuple1)):  # for each index in the tuple
+                newTuple.append(dimensions[index])
+                newTuple.append(tuple1[index])
+            newCandidateConnections.append(newTuple)
+        allCandidateConnection.append(newCandidateConnections)
+
+    return allCandidateConnection
+
+
+def generateEdgesIncognito(candidate):
+    candidateTableList = candidate
+    edgesList = []
+    # for each node create its edges
+    for candidateTable in candidateTableList:
+        edges = []
+        for node in candidateTable:  # iterates through all the nodes in candidateTable
+            for index in range(1,len(node),2):  # iterates through all the possible next node ids
+                nextNode = int(node[index]) + 1
+                length = []
+                for i in range(1,len(node),2):
+                    length.append(i)
+                # length = [1,3,5]
+                length.remove(index)
+                for nodeCheck in range(candidateTable.index(node) + 1, len(candidateTable)):
+                    # if another node matches with nextNode then add to edge
+                    # check against current nodes
+                    total = 0
+                    for i in length:
+                        if candidateTable[nodeCheck][i] == node[i]:
+                            total += 1
+                    if candidateTable[nodeCheck][index] == str(nextNode) and total == len(length):
+                        edges.append((candidateTable.index(node) + 1, nodeCheck + 1))
+                        break
+
+        edges = removeDuplicates(edges)
+        edges = sorted(edges, key=lambda element: (element[0], element[1]))
+        edgesList.append(edges)
+
+        root1 = []
+        root2 = []
+        for i in edges:
+            root1.append(i[0])
+            root2.append(i[1])
+        generateEdges.roots = np.setdiff1d(root1, root2)
+
+    return edgesList
+
+
+def candidateNodeTable():  # Generates and returns candidate node table
+    name = [["Name", 0], ["Name", 1]]
+    sex = [["Sex", 0], ["Sex", 1]]
+    address = [["Address", 0], ["Address", 1]]
+    age = [["Age", 0], ["Age", 1], ["Age", 2]]
+    postcode = [["Postcode", 0], ["Postcode", 1], ["Postcode", 2]]
+
+    # What are all possible generalization graphs?
+    # name - sex, address, age, postcode
+    # sex - address, age, postcode
+    # address - age, postcode
+    # age - postcode
+    # put smaller attributes first for nicer table
+    quasiIdentifiers = [name, sex, address, age, postcode]  # add what quasi identifiers here
 
     comp = []
     dimensions = []
@@ -123,17 +198,6 @@ def indexTables():  # creates index tables for dimension tables
     indexTables.addressDimDF = pd.DataFrame(data=addressDim, columns=dimColumns)
     indexTables.ageDimDF = pd.DataFrame(data=ageDim, columns=dimColumns)
     indexTables.postcodeDimDF = pd.DataFrame(data=postcodeDim, columns=dimColumns)
-
-
-# def party(column):
-#     partyDFList = []
-#     party0 = []
-#     for item in VoterListDF[column]:  # for each item in column
-#         party0.append(item)
-#     p0 = {'Party': party0}
-#     partyDF0 = pd.DataFrame(data=p0)
-#     partyDFList.append(partyDF0)
-#     return partyDFList
 
 
 def name(column):
@@ -271,7 +335,7 @@ def convertColumns():  # creates dataframe lists once at the start of algorithm
 
 
 def dimDFConversion(node):  # converts to dim dataframe for incognito algorithm
-
+    # print(node)
     for index in range(1, len(node), 2):
         column = node[index - 1]
         dim = int(node[index])
@@ -292,3 +356,31 @@ def dimDFConversion(node):  # converts to dim dataframe for incognito algorithm
         VoterListDF[column] = change[column]
 
     return VoterListDF
+
+
+def dimDFConversionIncognito(node):  # converts to dim dataframe for incognito algorithm
+    # print(node)
+    data = {}
+    df = pd.DataFrame(data)
+
+    for index in range(1, len(node), 2):
+        column = node[index - 1]
+        dim = int(node[index])
+
+        # 2D Items
+        if column == 'Name':
+            change = convertColumns.nameList[dim]
+        if column == 'Sex':
+            change = convertColumns.sexList[dim]
+        if column == 'Address':
+            change = convertColumns.addressList[dim]
+        # 3D Items
+        if column == 'Age':
+            change = convertColumns.ageList[dim]
+        if column == 'Postcode':
+            change = convertColumns.postcodeList[dim]
+
+        #print(change[column])
+        df[column] = change[column]
+
+    return df
