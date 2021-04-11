@@ -1,10 +1,17 @@
+"""
+GraphGeneration.py
+Author: Elliot Davis
+
+This file generates a graph representing the generalization lattice for the respective dataset
+
+"""
+
 import networkx as nx
 from matplotlib import pyplot as plt
-
 from LatticeGeneration import candidateNodeTable, generateEdges
 
 
-def incognitoGraph():
+def latticeGraph():
     G = nx.Graph()
 
     C = candidateNodeTable()

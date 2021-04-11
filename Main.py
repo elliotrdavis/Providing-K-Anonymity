@@ -6,16 +6,14 @@ This file is responsible for
 
 """
 
-from KValue import VoterListDF, VoterListColumns
-from ColumnConversion import convertColumns, createTempDataframe, updateDataframe
-from LatticeGeneration import candidateNodeTableIncognito, generateEdgesIncognito, candidateNodeTable
+from ColumnConversion import createTempDataframe, updateDataframe
+from LatticeGeneration import generateLatticeNodes, generateLatticeEdges
 import time
 
 """
 TODO:
-Optimise column generation
-Incognito not marking all nodes if kvalue true
-generate edges in pruned genLattice ?
+Incognito not marking all nodes if kvalue true - not necessary
+generate edges in pruned genLattice - not necessary
 
 
 Columns: 'Name','Age','Sex','Address','Party','Postcode'
@@ -30,13 +28,16 @@ Postcode: P0 (original), P1 (First 3 letters), P2 (First 2 Letters)
 
 
 def samarati(kanonymity):
-    C = candidateNodeTable()
-    convertColumns()
+    C = []
+    C = generateLatticeNodes(quasiIdentifiers,C)
+    # C = candidateNodeTable()
+    # convertColumns()
 
-    for node in C:
-        print(node)
+    for node in C[0]:
+        # print(node)
         dimDataframe = updateDataframe(node)  # returns dimDataframe
         kValue = frequencySet(dimDataframe)
+        # print(dimDataframe)
 
         if kValue >= kanonymity:
             print(dimDataframe)
@@ -44,12 +45,15 @@ def samarati(kanonymity):
             print("--- %s seconds ---" % (time.time() - start_time))
             break
 
-# --- 0.31246209144592285 seconds ---
-def incognito(kanonymity):
-    C = candidateNodeTableIncognito()
-    E = generateEdgesIncognito(C)
 
-    convertColumns()
+def incognito(kanonymity):
+
+    C = []
+    for columnNames in incognitoAttributeList:
+        C = generateLatticeNodes(columnNames, C)
+
+    E = generateLatticeEdges(C)
+
     queue = []
     SList = []
 
@@ -191,19 +195,23 @@ Then double check if k value is correct
 
 
 def frequencySet(dataframe):
-    # print(dataframe)
-    # print(dataframe.columns)
     KValue = dataframe.groupby(list(dataframe.columns)).size().reset_index(name='Count')
-    # print("K-Value = ", KValue['Count'].min())
-    # print(KValue)
     KValue = KValue['Count'].min()
-    # print(KValue)
     return KValue
-
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     start_time = time.time()
-    incognito(2)
-    # samarati(2)
+
+    name = [["Name", 0], ["Name", 1]]
+    sex = [["Sex", 0], ["Sex", 1]]
+    address = [["Address", 0], ["Address", 1]]
+    age = [["Age", 0], ["Age", 1], ["Age", 2]]
+    postcode = [["Postcode", 0], ["Postcode", 1], ["Postcode", 2]]
+
+    incognitoAttributeList = [[name, sex], [sex, address], [address, age], [age, postcode], [postcode, name]]
+    quasiIdentifiers = [name, sex, address, age, postcode]
+
+    #incognito(2)
+    samarati(2)

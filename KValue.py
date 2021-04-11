@@ -1,7 +1,12 @@
-# Has some example datasets and can calculate k-value
+"""
+KValue.py
+Author: Elliot Davis
+
+In this file I have created some example datasets and can calculate the k-value
+
+"""
+
 import pandas as pd
-
-
 
 MedicalList = [[56183, 35, "Male", 96, "Asthma", "Inhaler", "SE5 6AH"],
                [11023, 25, "Female", 65, "Back Pain", "Physiotherapy", "SE7 6LF"],
@@ -31,7 +36,12 @@ MedicalListDF = pd.DataFrame(MedicalList, columns=MedicalListColumns)
 VoterListColumns = ['Name', 'Age', 'Sex', 'Address', 'Party', 'Postcode']
 VoterListDF = pd.DataFrame(VoterList, columns=VoterListColumns)
 
+# Change which dataset is used for the algorithm here
+datasetDF = VoterListDF
+datasetColumns = VoterListColumns
 
+
+# Generates some example tables, used early on in the project
 def exampleTables():
     # print(MedicalListDF.groupby(['Patient ID','Age','Sex','Weight (kg)','Medical Issue','Treatment',
     # 'Postcode']).size().reset_index(name='Count'))
@@ -94,5 +104,4 @@ def exampleTables():
     # print("K-Value = ", KValue['Count'].min())
 
 
-datasetDF = VoterListDF
-datasetColumns = VoterListColumns
+
