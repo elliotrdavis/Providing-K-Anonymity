@@ -1,5 +1,15 @@
-from ColumnConversion import convertColumns, dimDFConversionIncognito
+"""
+Main.py
+Author: Elliot Davis
+
+This file is responsible for
+
+"""
+
+from KValue import VoterListDF, VoterListColumns
+from ColumnConversion import convertColumns, createTempDataframe, updateDataframe
 from LatticeGeneration import candidateNodeTableIncognito, generateEdgesIncognito, candidateNodeTable
+import time
 
 """
 TODO:
@@ -24,15 +34,17 @@ def samarati(kanonymity):
     convertColumns()
 
     for node in C:
-        dimDataframe = dimDFConversionIncognito(node)  # returns dimDataframe
+        print(node)
+        dimDataframe = updateDataframe(node)  # returns dimDataframe
         kValue = frequencySet(dimDataframe)
 
         if kValue >= kanonymity:
             print(dimDataframe)
             print(kValue)
+            print("--- %s seconds ---" % (time.time() - start_time))
             break
 
-
+# --- 0.31246209144592285 seconds ---
 def incognito(kanonymity):
     C = candidateNodeTableIncognito()
     E = generateEdgesIncognito(C)
@@ -71,14 +83,14 @@ def incognito(kanonymity):
 
                 if node in roots:
                     # print(node[0])
-                    dimDataframe = dimDFConversionIncognito(node)  # returns dimDataframe
+                    dimDataframe = createTempDataframe(node)  # returns dimDataframe
                     # print(dimDataframe)
                     kValue = frequencySet(dimDataframe)  # returns KValue
                     # print(kValue)
                     # Compute frequency set by replacing values in i in original table
                 else:
                     # print(node[0])
-                    dimDataframe = dimDFConversionIncognito(node)  # returns dimDataframe
+                    dimDataframe = createTempDataframe(node)  # returns dimDataframe
                     kValue = frequencySet(dimDataframe)  # returns KValue
                     # print(dimDataframe)
                     # print(kValue)
@@ -149,10 +161,11 @@ def graphGen(nodes):
     # print("Gen Lattice")
     # print(genLattice)
     for node in genLattice:
-        dimDataframe = dimDFConversionIncognito(node)  # returns dimDataframe
+        dimDataframe = updateDataframe(node)  # returns dimDataframe
         print(dimDataframe)
         kValue = frequencySet(dimDataframe)  # returns KValue
         print(kValue)
+    print("--- %s seconds ---" % (time.time() - start_time))
 
 
 """
@@ -188,7 +201,9 @@ def frequencySet(dataframe):
     return KValue
 
 
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    # incognito(2)
-    samarati(2)
+    start_time = time.time()
+    incognito(2)
+    # samarati(2)

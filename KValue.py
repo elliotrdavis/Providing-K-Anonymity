@@ -1,6 +1,8 @@
 # Has some example datasets and can calculate k-value
 import pandas as pd
 
+
+
 MedicalList = [[56183, 35, "Male", 96, "Asthma", "Inhaler", "SE5 6AH"],
                [11023, 25, "Female", 65, "Back Pain", "Physiotherapy", "SE7 6LF"],
                [74128, 21, "Female", 56, "Cancer", "Chemotherapy", "SE7 9PQ"],
@@ -90,3 +92,7 @@ def exampleTables():
 
     # print(KValue)
     # print("K-Value = ", KValue['Count'].min())
+
+
+datasetDF = VoterListDF
+datasetColumns = VoterListColumns

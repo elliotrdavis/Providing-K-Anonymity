@@ -1,42 +1,21 @@
 """
-DimensionTables.py
+ColumnConversion.py
 Author: Elliot Davis
 
 This file is responsible for
 
-Functions:
--
--
--
-
 """
 
 import pandas as pd
-from KValue import VoterListDF, VoterListColumns
-
-# def indexTables():  # creates index tables for dimension tables
-#     partyDim = [["Party", 0]]
-#     nameDim = [["Name", 0], ["Name", 1]]
-#     sexDim = [["Sex", 0], ["Sex", 1]]
-#     addressDim = [["Address", 0], ["Address", 1]]
-#     ageDim = [["Age", 0], ["Age", 1], ["Age", 2]]
-#     postcodeDim = [["Postcode", 0], ["Postcode", 1], ["Postcode", 2]]
-#
-#     dimColumns = ['dim', 'index']
-#
-#     indexTables.partyDimDF = pd.DataFrame(data=partyDim, columns=dimColumns)
-#     indexTables.nameDimDF = pd.DataFrame(data=nameDim, columns=dimColumns)
-#     indexTables.sexDimDF = pd.DataFrame(data=sexDim, columns=dimColumns)
-#     indexTables.addressDimDF = pd.DataFrame(data=addressDim, columns=dimColumns)
-#     indexTables.ageDimDF = pd.DataFrame(data=ageDim, columns=dimColumns)
-#     indexTables.postcodeDimDF = pd.DataFrame(data=postcodeDim, columns=dimColumns)
+from KValue import datasetDF, datasetColumns
 
 
+# Converts column for name
 def name(column):
     nameDFList = []
     name0 = []
     name1 = []
-    for item in VoterListDF[column]:
+    for item in datasetDF[column]:
         name0.append(item)
         item = '-'
         name1.append(item)
@@ -49,11 +28,12 @@ def name(column):
     return nameDFList
 
 
+# Converts column for sex
 def sex(column):
     sexDFList = []
     sex0 = []
     sex1 = []
-    for item in VoterListDF[column]:
+    for item in datasetDF[column]:
         sex0.append(item)
         item = '-'
         sex1.append(item)
@@ -66,11 +46,12 @@ def sex(column):
     return sexDFList
 
 
+# Converts column for address
 def address(column):
     addressDFList = []
     address0 = []
     address1 = []
-    for item in VoterListDF[column]:
+    for item in datasetDF[column]:
         address0.append(item)
         item = '-'
         address1.append(item)
@@ -83,12 +64,13 @@ def address(column):
     return addressDFList
 
 
+# Converts column for age
 def age(column):
     ageDFList = []
     age0 = []
     age1 = []
     age2 = []
-    for item in VoterListDF[column]:
+    for item in datasetDF[column]:
         age0.append(item)
         if 0 <= item <= 5:
             ageRange = '0<=x<=5'
@@ -130,12 +112,13 @@ def age(column):
     return ageDFList
 
 
+# Converts column for postcode
 def postcode(column):
     postcodeDFList = []
     postcode0 = []
     postcode1 = []
     postcode2 = []
-    for item in VoterListDF[column]:
+    for item in datasetDF[column]:
         postcode0.append(item)
         postcode1.append(item[:3])
         postcode2.append(item[:2])
@@ -151,8 +134,10 @@ def postcode(column):
     return postcodeDFList
 
 
-def convertColumns():  # creates dataframe lists once at the start of algorithm
-    for column in VoterListColumns:
+# Iterates through columns in our dataset to get DFList for each column
+def convertColumns():
+    for column in datasetColumns:
+        # 2D Items
         if column == 'Name':
             convertColumns.nameList = name(column)
         if column == 'Sex':
@@ -166,53 +151,71 @@ def convertColumns():  # creates dataframe lists once at the start of algorithm
             convertColumns.postcodeList = postcode(column)
 
 
-def dimDFConversion(node):  # converts to dim dataframe for incognito algorithm
-    # print(node)
+# Returns column depending on column name and dimension number parameters
+def updateColumn(column, dim):
+    # 2D Items
+    if column == 'Name':
+        change = convertColumns.nameList[dim]
+    if column == 'Sex':
+        change = convertColumns.sexList[dim]
+    if column == 'Address':
+        change = convertColumns.addressList[dim]
+    # 3D Items
+    if column == 'Age':
+        change = convertColumns.ageList[dim]
+    if column == 'Postcode':
+        change = convertColumns.postcodeList[dim]
+
+    return change
+
+
+# Updates dataset columns depending on node passed in
+# Node is the combination of generalizations needed to be returned e.g. (Name, 1, Sex, 0)
+def updateDataframe(node):
+
+    # Iterate through node
     for index in range(1, len(node), 2):
-        column = node[index - 1]
-        dim = int(node[index])
+        column = node[index - 1]  # e.g. Name
+        dim = int(node[index])  # e.g. 1
 
-        # 2D Items
-        if column == 'Name':
-            change = convertColumns.nameList[dim]
-        if column == 'Sex':
-            change = convertColumns.sexList[dim]
-        if column == 'Address':
-            change = convertColumns.addressList[dim]
-        # 3D Items
-        if column == 'Age':
-            change = convertColumns.ageList[dim]
-        if column == 'Postcode':
-            change = convertColumns.postcodeList[dim]
+        change = updateColumn(column, dim)  # Determine which column to update
+        datasetDF[column] = change[column]  # Updates original dataframe with new column
 
-        VoterListDF[column] = change[column]
-
-    return VoterListDF
+    return datasetDF
 
 
-def dimDFConversionIncognito(node):  # converts to dim dataframe for incognito algorithm
-    # print(node)
+# Creates dataframe depending on node passed in - used for incognito algorithm
+# Node is the combination of generalizations needed to be returned e.g. (Name, 1, Sex, 0)
+def createTempDataframe(node):
+
+    # Create temporary dataframe for incognito algorithm
     data = {}
     df = pd.DataFrame(data)
 
+    # Iterate through node
     for index in range(1, len(node), 2):
         column = node[index - 1]
         dim = int(node[index])
 
-        # 2D Items
-        if column == 'Name':
-            change = convertColumns.nameList[dim]
-        if column == 'Sex':
-            change = convertColumns.sexList[dim]
-        if column == 'Address':
-            change = convertColumns.addressList[dim]
-        # 3D Items
-        if column == 'Age':
-            change = convertColumns.ageList[dim]
-        if column == 'Postcode':
-            change = convertColumns.postcodeList[dim]
-
-        #print(change[column])
-        df[column] = change[column]
+        change = updateColumn(column, dim)  # Determine which column to update
+        df[column] = change[column]  # Updates original dataframe with new column
 
     return df
+
+
+# def indexTables():  # creates index tables for dimension tables
+#     partyDim = [["Party", 0]]
+#     nameDim = [["Name", 0], ["Name", 1]]
+#     sexDim = [["Sex", 0], ["Sex", 1]]
+#     addressDim = [["Address", 0], ["Address", 1]]
+#     ageDim = [["Age", 0], ["Age", 1], ["Age", 2]]
+#     postcodeDim = [["Postcode", 0], ["Postcode", 1], ["Postcode", 2]]
+#
+#     dimColumns = ['dim', 'index']
+#
+#     indexTables.partyDimDF = pd.DataFrame(data=partyDim, columns=dimColumns)
+#     indexTables.nameDimDF = pd.DataFrame(data=nameDim, columns=dimColumns)
+#     indexTables.sexDimDF = pd.DataFrame(data=sexDim, columns=dimColumns)
+#     indexTables.addressDimDF = pd.DataFrame(data=addressDim, columns=dimColumns)
+#     indexTables.ageDimDF = pd.DataFrame(data=ageDim, columns=dimColumns)
+#     indexTables.postcodeDimDF = pd.DataFrame(data=postcodeDim, columns=dimColumns)

@@ -1,3 +1,10 @@
+"""
+LatticeGeneration.py
+Author: Elliot Davis
+
+This file is responsible for
+
+"""
 
 from functools import reduce
 from itertools import product
