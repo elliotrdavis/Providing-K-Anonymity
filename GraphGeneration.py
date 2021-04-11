@@ -1,7 +1,7 @@
 import networkx as nx
 from matplotlib import pyplot as plt
 
-from DimensionTables import candidateNodeTable, generateEdges
+from LatticeGeneration import candidateNodeTable, generateEdges
 
 
 def incognitoGraph():
