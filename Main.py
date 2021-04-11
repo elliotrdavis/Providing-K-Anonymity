@@ -30,16 +30,13 @@ Postcode: P0 (original), P1 (First 3 letters), P2 (First 2 Letters)
 def samarati(kanonymity):
     C = []
     C = generateLatticeNodes(quasiIdentifiers,C)
-    # C = candidateNodeTable()
-    # convertColumns()
 
-    for node in C[0]:
-        # print(node)
-        dimDataframe = updateDataframe(node)  # returns dimDataframe
+    for node in C[0]:  # For each potential node in lattice
+        # Node are ordered by height
+        dimDataframe = updateDataframe(node)
         kValue = frequencySet(dimDataframe)
-        # print(dimDataframe)
 
-        if kValue >= kanonymity:
+        if kValue >= kanonymity:  # If a node meets requirements, print and break
             print(dimDataframe)
             print(kValue)
             print("--- %s seconds ---" % (time.time() - start_time))
@@ -47,75 +44,43 @@ def samarati(kanonymity):
 
 
 def incognito(kanonymity):
-
     C = []
-    for columnNames in incognitoAttributeList:
+    for columnNames in incognitoAttributeList:  # Generates list of all potential nodes
         C = generateLatticeNodes(columnNames, C)
-
     E = generateLatticeEdges(C)
 
     queue = []
-    SList = []
-
-    # C1 = candidateNodeTable()
-    # for node in C1:
-    #     dimDataframe = dimDFConversionIncognito(node)  # returns dimDataframe
-    #     kValue = frequencySet(dimDataframe)  # returns KValue
-    #     if kValue >= 2:
-    #         print(kValue)
-    #         print(dimDataframe)
+    fullDomainList = []  # List for all nodes which meet requirements
 
     for i, j in zip(C, E):
-
         # i is the nodes of the original lattice, j is the edges of the original lattice
         S = i[:]  # nodes of current lattice
         SE = j[:]  # edges of current lattice
-        roots = [S[0]]
-        # print(S[0])
-        # print(roots)
-        # queue.append(roots)
+        roots = [S[0]]  # nodes where no edges pointing into them - currently hard coded
         queue.append(S[0])
-        # print(queue)
         visited = []
 
         while queue:
             node = queue[0]
             queue.pop(0)
-            # print(S)
 
             if node not in visited:
-
                 if node in roots:
-                    # print(node[0])
                     dimDataframe = createTempDataframe(node)  # returns dimDataframe
-                    # print(dimDataframe)
                     kValue = frequencySet(dimDataframe)  # returns KValue
-                    # print(kValue)
                     # Compute frequency set by replacing values in i in original table
                 else:
-                    # print(node[0])
                     dimDataframe = createTempDataframe(node)  # returns dimDataframe
                     kValue = frequencySet(dimDataframe)  # returns KValue
-                    # print(dimDataframe)
-                    # print(kValue)
                     # Compute frequency set by replacing values in i parent frequency
 
                 if kValue >= kanonymity:
-                    # print(kValue)
-                    # if match then mark all direct generalizations by adding to visited
-                    # print(S)
-                    # print(SE)
-                    # print(i)
+                    # if meets kanonymity requirement then add direct generalizations to visited
                     index = i.index(S[0]) + 1
-                    # print("index")
-                    # print(index)
                     visited.append(i[index-1])
-                    # print(i[index-1])
                     for edge in SE:
                         if edge[0] == index:
-                            # print(i[edge[1]-1])
                             visited.append(i[edge[1]-1])
-                    # frequencySet1 = 0
                 else:
                     # if kvalue false then search through rest of lattice by height, removing edges along the way
                     index = i.index(S[0]) + 1
@@ -123,84 +88,47 @@ def incognito(kanonymity):
                     S.pop(0)
                     if len(S) > 0:
                         queue.append(S[0])
-                        # print(queue)
-                        # print(S[0])
                     else:
                         print("queue is empty")
-        # print(S)
-        # print(SE)
-        SList.append(visited)
-    graphGen(SList)
-    # Graph generation here
+        fullDomainList.append(visited)
+    graphGen(fullDomainList)
 
 
-def graphGen(nodes):
-    # joining phase
+# Generates all potential full domain generalizations which meet kanonymity requirement
+def graphGen(nodeList):
     genLattice = []
-    for firstNode in nodes[0]:
+    for firstNode in nodeList[0]:  # Adds first set of nodes to list
         genLattice.append(firstNode)
+    nodeList.pop(0)
 
-    nodes.pop(0)
-    for node in nodes[:-1]:
-        for gen in node:
-            # print("Gen: " + str(gen))
-            for lat in genLattice:
-
-                if lat[-1] == gen[1] and lat[-2] == gen[0]:
-                    lat.append(gen[2])
-                    lat.append(gen[3])
-                # if lat[-1] != gen[1] and lat[-2] == gen[0]:
-                #     print("hello")
-                #     lat[-1] = gen[1]
-                #     genLattice.append(lat)
-                if lat[-4] == gen[0] and lat[-3] == gen[1] and lat[-2] == gen[2] and lat[-1] != gen[3]:
-                    # lat[-1] = gen[3]
+    for nodes in nodeList[:-1]:  # For all the other nodes
+        for node in nodes:  # For each node
+            for lat in genLattice:  # For each item in current list (lat) check the following
+                if lat[-1] == node[1] and lat[-2] == node[0]:  # Check if matching nodes have matching dimensions
+                    lat.append(node[2])
+                    lat.append(node[3])
+                # Check if names are matching but numbers are different, create new node if so
+                if lat[-4] == node[0] and lat[-3] == node[1] and lat[-2] == node[2] and lat[-1] != node[3]:
                     newLat = lat[:]
-                    newLat[-1] = gen[3]
+                    newLat[-1] = node[3]
                     genLattice.append(newLat)
-                # print("lat: " + str(lat))
 
-            # .append(gen)
-        # print(node)
-    # print("Gen Lattice")
-    # print(genLattice)
+    # Print all full domain generalisations
     for node in genLattice:
-        dimDataframe = updateDataframe(node)  # returns dimDataframe
+        dimDataframe = updateDataframe(node)
         print(dimDataframe)
-        kValue = frequencySet(dimDataframe)  # returns KValue
+        kValue = frequencySet(dimDataframe)
         print(kValue)
     print("--- %s seconds ---" % (time.time() - start_time))
 
 
-"""
-[['Name', '1', 'Sex', '0'], # wrong ['Name', '0', 'Sex', '1'], ['Name', '1', 'Sex', '1']]
-[['Sex', '0', 'Address', '1'], ['Sex', '1', 'Address', '1']]
-[['Address', '1', 'Age', '2']]
-[['Age', '2', 'Postcode', '1'], # wrong['Age', '0', 'Postcode', '2'], #wrong ['Age', '1', 'Postcode', '2'],
- ['Age', '2', 'Postcode', '2']]
-
-Generate these nodes
-Name 1, Sex 0, Address 1, Age 2, Postcode 1, //Name 1
-Name 0, Sex 1, Address 1, Age 2, Postcode 1, //Name 1
-Name 1, Sex 1, Address 1, Age 2, Postcode 1, //Name 1
-Name 1, Sex 0, Address 1, Age 2, Postcode 2, //Name 0/1
-Name 0, Sex 1, Address 1, Age 2, Postcode 2, //Name 0/1
-Name 1, Sex 1, Address 1, Age 2, Postcode 2, //Name 0/1
-
-Then generate edges..
-if node where 1 attribute is 1 above then connect
-
-Then double check if k value is correct
-"""
-
-
+# Returns k-value (how secure the dataset is)
 def frequencySet(dataframe):
     KValue = dataframe.groupby(list(dataframe.columns)).size().reset_index(name='Count')
     KValue = KValue['Count'].min()
     return KValue
 
 
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     start_time = time.time()
 
@@ -213,5 +141,5 @@ if __name__ == '__main__':
     incognitoAttributeList = [[name, sex], [sex, address], [address, age], [age, postcode], [postcode, name]]
     quasiIdentifiers = [name, sex, address, age, postcode]
 
-    #incognito(2)
-    samarati(2)
+    incognito(2)
+    #samarati(2)
