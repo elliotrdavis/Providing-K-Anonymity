@@ -2,7 +2,7 @@
 ColumnConversion.py
 Author: Elliot Davis
 
-This file is responsible for
+This file is responsible for converting the columns for each attribute we want to generalize.
 
 """
 
@@ -250,37 +250,3 @@ def createTempDataframe(node):
         df[column] = change[column]  # Updates original dataframe with new column
 
     return df
-
-
-# def indexTables():  # creates index tables for dimension tables
-#     partyDim = [["Party", 0]]
-#     nameDim = [["Name", 0], ["Name", 1]]
-#     sexDim = [["Sex", 0], ["Sex", 1]]
-#     addressDim = [["Address", 0], ["Address", 1]]
-#     ageDim = [["Age", 0], ["Age", 1], ["Age", 2]]
-#     postcodeDim = [["Postcode", 0], ["Postcode", 1], ["Postcode", 2]]
-#
-#     dimColumns = ['dim', 'index']
-#
-#     indexTables.partyDimDF = pd.DataFrame(data=partyDim, columns=dimColumns)
-#     indexTables.nameDimDF = pd.DataFrame(data=nameDim, columns=dimColumns)
-#     indexTables.sexDimDF = pd.DataFrame(data=sexDim, columns=dimColumns)
-#     indexTables.addressDimDF = pd.DataFrame(data=addressDim, columns=dimColumns)
-#     indexTables.ageDimDF = pd.DataFrame(data=ageDim, columns=dimColumns)
-#     indexTables.postcodeDimDF = pd.DataFrame(data=postcodeDim, columns=dimColumns)
-
-# # Iterates through columns in our dataset to get DFList for each column
-# def convertColumns():
-#     for column in datasetColumns:
-#         # 2D Items
-#         if column == 'Name':
-#             convertColumns.nameList = name(column)
-#         if column == 'Sex':
-#             convertColumns.sexList = sex(column)
-#         if column == 'Address':
-#             convertColumns.addressList = address(column)
-#         # 3D Items
-#         if column == 'Age':
-#             convertColumns.ageList = age(column)
-#         if column == 'Postcode':
-#             convertColumns.postcodeList = postcode(column)

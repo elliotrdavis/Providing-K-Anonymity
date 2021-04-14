@@ -2,7 +2,8 @@
 Main.py
 Author: Elliot Davis
 
-This file is responsible for
+This file implements the Incognito algorithm and the Samariti algorithm, it contains a function to calculate the
+k value of a given data set
 
 """
 
@@ -30,6 +31,7 @@ Postcode: P0 (original), P1 (First 3 letters), P2 (First 2 Letters)
 def samarati(kanonymity):
     C = []
     C = generateLatticeNodes(quasiIdentifiers,C)
+    E = generateLatticeEdges(C)
 
     for node in C[0]:  # For each potential node in lattice
         # Node are ordered by height
@@ -56,7 +58,6 @@ def incognito(kanonymity):
         # i is the nodes of the original lattice, j is the edges of the original lattice
         S = i[:]  # nodes of current lattice
         SE = j[:]  # edges of current lattice
-        roots = [S[0]]  # nodes where no edges pointing into them - currently hard coded
         queue.append(S[0])
         visited = []
 
@@ -65,22 +66,23 @@ def incognito(kanonymity):
             queue.pop(0)
 
             if node not in visited:
-                if node in roots:
-                    dimDataframe = createTempDataframe(node)  # returns dimDataframe
-                    kValue = frequencySet(dimDataframe)  # returns KValue
-                    # Compute frequency set by replacing values in i in original table
-                else:
-                    dimDataframe = createTempDataframe(node)  # returns dimDataframe
-                    kValue = frequencySet(dimDataframe)  # returns KValue
-                    # Compute frequency set by replacing values in i parent frequency
+                dimDataframe = createTempDataframe(node)  # returns dimDataframe
+                kValue = frequencySet(dimDataframe)  # returns KValue
+                # Compute frequency set by replacing values in i in original table
 
                 if kValue >= kanonymity:
                     # if meets kanonymity requirement then add direct generalizations to visited
-                    index = i.index(S[0]) + 1
-                    visited.append(i[index-1])
-                    for edge in SE:
-                        if edge[0] == index:
-                            visited.append(i[edge[1]-1])
+                    visitedQueue = [i.index(S[0]) + 1]
+                    visited.append(i[index - 1])
+                    while visitedQueue:
+                        index = visitedQueue[0]
+                        visitedQueue.pop(0)
+
+                        for edge in SE:
+                            if edge[0] == index:
+                                visited.append(i[edge[1]-1])
+                                visitedQueue.append(i.index(i[edge[1]-1]) + 1)
+                    print(visited)
                 else:
                     # if kvalue false then search through rest of lattice by height, removing edges along the way
                     index = i.index(S[0]) + 1
@@ -142,4 +144,13 @@ if __name__ == '__main__':
     quasiIdentifiers = [name, sex, address, age, postcode]
 
     incognito(2)
-    #samarati(2)
+    # samarati(2)
+
+    # if node in roots:
+    #     dimDataframe = createTempDataframe(node)  # returns dimDataframe
+    #     kValue = frequencySet(dimDataframe)  # returns KValue
+    #     # Compute frequency set by replacing values in i in original table
+    # else:
+    #     dimDataframe = createTempDataframe(node)  # returns dimDataframe
+    #     kValue = frequencySet(dimDataframe)  # returns KValue
+    #     # Compute frequency set by replacing values in i parent frequency

@@ -8,6 +8,7 @@ This file generates the generalization lattices (nodes and edges)
 
 from functools import reduce
 from itertools import product
+import itertools
 
 
 # Returns list of all nodes in the lattice
@@ -19,14 +20,20 @@ def generateLatticeNodes(attributeDimensions, allCandidateNodes):
         dimensionNameList.append(dimensions[0][0])
         dimArray = []  # will temporarily hold all dim numbers for each attribute
         for dim in dimensions:  # For each individual dimension e.g. [Name,0]
-            dimArray.append(str(dim[1]))
-        depth.insert(0,tuple(dimArray))  # Adds dimension depth number for each attribute
+            dimArray.append(dim[1])
+        depth.append(tuple(dimArray))  # Adds dimension depth number for each attribute
 
     dimensionNameList = tuple(dimensionNameList)
     # attributeCombinations generates a list of all combinations of node depths in order (will allow easier
     # computation for Samariti's algorithm)
-    attributeCombinations = list(reduce(lambda a, b: [(p[1], *p[0]) for p in product(a, b)], depth))
 
+    # Depth example:
+    # [(0, 1), (0, 1), (0, 1), (0, 1, 2), (0, 1, 2)]
+    attributeCombinations = sorted(list(itertools.product(*depth)), key=sum)
+    # attributeCombinations example:
+    # [(0, 0, 0, 0, 0), (0, 0, 0, 0, 1), (0, 0, 0, 1, 0), (0, 0, 1, 0, 0), ... ,(1, 1, 1, 2, 1), (1, 1, 1, 2, 2)]
+
+    attributeCombinations = [[str(j) for j in i] for i in attributeCombinations]
     candidateNodes = []
     for node in attributeCombinations:  # for each node in lattice
         newNode = []
@@ -41,10 +48,10 @@ def generateLatticeNodes(attributeDimensions, allCandidateNodes):
 
 
 # Returns list of all edges in lattice
-def generateLatticeEdges(candidateTableList):
+def generateLatticeEdges(candidateNodes):
     edgesList = []
 
-    for candidateTable in candidateTableList:  # for each node create its edges
+    for candidateTable in candidateNodes:  # for each node create its edges
         edges = []
         for node in candidateTable:  # iterates through all the nodes in candidateTable
             for index in range(1,len(node),2):  # iterates through all the possible next node ids

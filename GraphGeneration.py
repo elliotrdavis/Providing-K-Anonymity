@@ -8,14 +8,14 @@ This file generates a graph representing the generalization lattice for the resp
 
 import networkx as nx
 from matplotlib import pyplot as plt
-from LatticeGeneration import candidateNodeTable, generateEdges
+from LatticeGeneration import generateLatticeNodes, generateLatticeEdges
 
 
 def latticeGraph():
     G = nx.Graph()
 
-    C = candidateNodeTable()
-    E = generateEdges()
+    C = generateLatticeNodes()
+    E = generateLatticeEdges()
 
     for node in C:
         string = ''.join(node)
