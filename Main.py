@@ -29,6 +29,17 @@ Postcode: P0 (original), P1 (First 3 letters), P2 (First 2 Letters)
 
 """
 Binary search for this list:
+two concurrent lists: 
+- one with height of each node in C
+- one with data (C)
+
+for each search:
+    calculate kValue for each node on that height
+    if found:
+        binary search lower
+    else: 
+        binary search higher level
+
 
 """
 
@@ -36,18 +47,40 @@ Binary search for this list:
 def samarati():
     C = []
     C = generateLatticeNodes(quasiIdentifiers, C)
-    E = generateLatticeEdges(C)
+    heightArray = []
+    for node in C[0]:
+        height = 0
+        for index in range(1, len(node), 2):  # iterates through all the possible next node ids
+            height += int(node[index])
+        heightArray.append(height)
+    heightList = list(set([i for i in heightArray]))
 
-    for node in C[0]:  # For each potential node in lattice
-        # Node are ordered by height
-        dimDataframe = updateDataframe(node)
-        kValue = frequencySet(dimDataframe)
+    low = heightList[0]
+    high = heightList[-1]
+    while low <= high:
+        tryNode = round((low+high)/2)
+        toSearch = []
+        found = False
 
-        if kValue >= kanonymity:  # If a node meets requirements, print and break
-            print(dimDataframe)
-            print(kValue)
-            print("--- %s seconds ---" % (time.time() - start_time))
-            break
+        for i in range(len(heightArray)):
+            if heightArray[i] == tryNode:
+                toSearch.append(i)
+                dimDataframe = updateDataframe(C[0][i])
+                kValue = frequencySet(dimDataframe)
+
+                if kValue >= kanonymity:
+                    found = True
+                    break
+
+        if found:
+            high = tryNode - 1
+
+        else:
+            low = tryNode + 1
+
+    print(dimDataframe)
+    print(kValue)
+    print("--- %s seconds ---" % (time.time() - start_time))
 
 
 def incognito():

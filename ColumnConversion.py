@@ -30,6 +30,8 @@ def name(column, dim):
         nameDFList.append(nameDF0)
 
     if dim == 1:
+        if len(nameDFList) == 0:
+            name(column, 0)
         for item in datasetDF[column]:
             item = '-'
             name1.append(item)
@@ -54,6 +56,8 @@ def sex(column, dim):
         sexDFList.append(sexDF0)
 
     if dim == 1:
+        if len(sexDFList) == 0:
+            sex(column, 0)
         for item in datasetDF[column]:
             item = '-'
             sex1.append(item)
@@ -78,6 +82,8 @@ def address(column, dim):
         addressDFList.append(addressDF0)
 
     if dim == 1:
+        if len(addressDFList) == 0:
+            address(column, 0)
         for item in datasetDF[column]:
             item = '-'
             address1.append(item)
@@ -103,6 +109,8 @@ def age(column, dim):
         ageDFList.append(ageDF0)
 
     if dim == 1:
+        if len(ageDFList) == 0:
+            age(column, 0)
         for item in ageDFList[0]["Age"]:
             if 0 <= int(item) <= 5:
                 ageRange = '0<=x<=5'
@@ -126,6 +134,11 @@ def age(column, dim):
         ageDFList.append(ageDF1)
 
     if dim == 2:
+        print(len(ageDFList))
+        if len(ageDFList) == 0:
+            age(column, 0)
+        if len(ageDFList) == 1:
+            age(column, 1)
         for ageRange in ageDFList[1]["Age"]:
             if ageRange == '0<=x<=5' or ageRange == '5<x<=10':
                 ageRange = '0<=x<=10'
@@ -158,6 +171,8 @@ def postcode(column, dim):
         postcodeDFList.append(postcodeDF0)
 
     if dim == 1:
+        if len(postcodeDFList) == 0:
+            postcode(column, 0)
         for item in datasetDF[column]:
             postcode1.append(item[:3])
         pc1 = {'Postcode': postcode1}
@@ -165,6 +180,10 @@ def postcode(column, dim):
         postcodeDFList.append(postcodeDF1)
 
     if dim == 2:
+        if len(postcodeDFList) == 0:
+            postcode(column, 0)
+        if len(postcodeDFList) == 1:
+            postcode(column, 1)
         for item in datasetDF[column]:
             postcode2.append(item[:2])
         pc2 = {'Postcode': postcode2}
