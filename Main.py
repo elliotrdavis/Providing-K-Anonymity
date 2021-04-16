@@ -6,10 +6,12 @@ This file implements the Incognito algorithm and the Samariti algorithm, it cont
 k value of a given data set
 
 """
+import copy
 
-from ColumnConversion import createTempDataframe, updateDataframe
+from ColumnConversion import createTempDataframe, updateDataframe, datasetDF
 from LatticeGeneration import generateLatticeNodes, generateLatticeEdges
 import time
+from KValue import readFiles
 
 """
 TODO:
@@ -27,72 +29,57 @@ Party: P0 (important info)
 Postcode: P0 (original), P1 (First 3 letters), P2 (First 2 Letters)
 """
 
-"""
-Binary search for this list:
-two concurrent lists: 
-- one with height of each node in C
-- one with data (C)
-
-for each search:
-    calculate kValue for each node on that height
-    if found:
-        binary search lower
-    else: 
-        binary search higher level
-
-
-"""
-
 
 def samarati():
-    C = []
-    C = generateLatticeNodes(quasiIdentifiers, C)
+    nodes = []
+    nodes = generateLatticeNodes(quasiIdentifiers, nodes)
     heightArray = []
-    for node in C[0]:
+
+    for node in nodes[0]:
         height = 0
         for index in range(1, len(node), 2):  # iterates through all the possible next node ids
             height += int(node[index])
         heightArray.append(height)
-    heightList = list(set([i for i in heightArray]))
+    heightSet = list(set([i for i in heightArray]))
 
-    low = heightList[0]
-    high = heightList[-1]
-    while low <= high:
-        tryNode = round((low+high)/2)
-        toSearch = []
+    low = heightSet[0]
+    high = heightSet[-1]
+    while low < high:
+        mid = round((low+high)/2)
         found = False
 
         for i in range(len(heightArray)):
-            if heightArray[i] == tryNode:
-                toSearch.append(i)
-                dimDataframe = updateDataframe(C[0][i])
+            if heightArray[i] == mid:
+                dimDataframe = updateDataframe(nodes[0][i])
                 kValue = frequencySet(dimDataframe)
 
                 if kValue >= kanonymity:
+                    solution = copy.deepcopy(dimDataframe)
+                    solutionKValue = kValue
                     found = True
                     break
 
         if found:
-            high = tryNode - 1
+            high = mid - 1
 
         else:
-            low = tryNode + 1
+            low = mid + 1
 
-    print(dimDataframe)
-    print(kValue)
+    print(solution)
+    print(solutionKValue)
     print("--- %s seconds ---" % (time.time() - start_time))
 
 
 def incognito():
-    C = []
+    nodes = []
     for columnNames in incognitoAttributeList:  # Generates list of all potential nodes
-        C = generateLatticeNodes(columnNames, C)
-    E = generateLatticeEdges(C)
+        nodes = generateLatticeNodes(columnNames, nodes)
+    E = generateLatticeEdges(nodes)
 
     queue = []
     fullDomainList = []  # List for all nodes which meet requirements
 
-    for i, j in zip(C, E):
+    for i, j in zip(nodes, E):
         # i is the nodes of the original lattice, j is the edges of the original lattice
         S = i[:]  # nodes of current lattice
         SE = j[:]  # edges of current lattice
@@ -165,11 +152,26 @@ def graphGen(nodeList):
         dimDataframe = updateDataframe(node)
         kValue = frequencySet(dimDataframe)
 
-        # if kValue >= kanonymity:
-        print(node)
-        print(dimDataframe)
-        print(kValue)
+        if kValue >= kanonymity:
+            print(node)
+            print(dimDataframe)
+            print(kValue)
     print("--- %s seconds ---" % (time.time() - start_time))
+
+
+def simpleSearch():
+    C = []
+    C = generateLatticeNodes(quasiIdentifiers, C)
+
+    for node in C[0]:  # For each potential node in lattice
+        # Node are ordered by height
+        dimDataframe = updateDataframe(node)
+        kValue = frequencySet(dimDataframe)
+        if kValue >= kanonymity:  # If a node meets requirements, print and break
+            print(dimDataframe)
+            print(kValue)
+            print("--- %s seconds ---" % (time.time() - start_time))
+            break
 
 
 # Returns k-value (how secure the dataset is)
@@ -185,12 +187,18 @@ if __name__ == '__main__':
     name = [["Name", 0], ["Name", 1]]
     sex = [["Sex", 0], ["Sex", 1]]
     address = [["Address", 0], ["Address", 1]]
-    age = [["Age", 0], ["Age", 1], ["Age", 2]]
-    postcode = [["Postcode", 0], ["Postcode", 1], ["Postcode", 2]]
+    age = [["Age", 0], ["Age", 1], ["Age", 2], ["Age", 3]]
+    postcode = [["Postcode", 0], ["Postcode", 1], ["Postcode", 2], ["Postcode", 3]]
+
+    patientID = [["Patient ID", 0], ["Patient ID", 1]]
+    weight = [["Weight (kg)", 0], ["Weight (kg)", 1], ["Weight (kg)", 2]]
+    treatment = [["Treatment", 0], ["Treatment", 1]]
 
     incognitoAttributeList = [[name, sex], [sex, address], [address, age], [age, postcode], [postcode, name]]
     quasiIdentifiers = [name, sex, address, age, postcode]
+    # quasiIdentifiers = [patientID, age, sex, weight, treatment, postcode]
     kanonymity = 2
 
-    # incognito()
+    #incognito()
     samarati()
+    # simpleSearch()
