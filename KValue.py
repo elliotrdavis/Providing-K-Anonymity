@@ -10,16 +10,22 @@ import pandas as pd
 import csv
 
 
-def readFiles():
-    newList = []
-    with open('data/kanonymity.csv', 'r') as file:
-        reader = csv.reader(file)
-        for row in reader:
-            newList.append(row)
-            # print(row)
-    datasetColumns = ['Name', 'Age', 'Sex', 'Address', 'Party', 'Postcode']
-    datasetDF = pd.DataFrame(newList, columns=datasetColumns)
-    return datasetDF
+def readHeader():
+    file1 = open('data/voterlist-header.txt', 'r')
+    lines = file1.readlines()
+    return lines
+
+
+# def readFiles():
+#     newList = []
+#     with open('data/kanonymity.csv', 'r') as file:
+#         reader = csv.reader(file)
+#         for row in reader:
+#             newList.append(row)
+#             # print(row)
+#     datasetColumns = ['Name', 'Age', 'Sex', 'Address', 'Party', 'Postcode']
+#     datasetDF = pd.DataFrame(newList, columns=datasetColumns)
+#     return datasetDF
 
 
 MedicalList = [[56183, 35, "Male", 96, "Asthma", "Inhaler", "SE5 6AH"],
@@ -47,9 +53,9 @@ VoterList = [["Oskar Green", 35, "Male", "10 Bairstow Road", "Conservative", "SE
 MedicalListColumns = ['Patient ID', 'Age', 'Sex', 'Weight (kg)', 'Medical Issue', 'Treatment', 'Postcode']
 MedicalListDF = pd.DataFrame(MedicalList, columns=MedicalListColumns)
 
-VoterListColumns = ['Name', 'Age', 'Sex', 'Address', 'Party', 'Postcode']
+VoterListColumns = ['name', 'age', 'sex', 'address', 'party', 'postcode']
 VoterListDF = pd.DataFrame(VoterList, columns=VoterListColumns)
-
+datasetDF = VoterListDF
 # # Change which dataset is used for the algorithm here
 # datasetDF = MedicalListDF
 # datasetColumns = MedicalListColumns
