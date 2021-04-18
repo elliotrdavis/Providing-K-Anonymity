@@ -9,8 +9,10 @@ import pandas as pd
 # from KValue import readFiles
 import copy
 
-# datasetDF = readFiles()
-from KValue import datasetDF
+from KValue import readFiles
+
+datasetDF = readFiles()
+# from KValue import datasetDF
 
 nameDFList = []
 sexDFList = []
@@ -51,74 +53,73 @@ def generalizeNumericList(column, dim):
 
     if dim == 1:
         for item in datasetDF[column]:
-            if type(item) is str:
-                break
-            else:
-                if 0 <= int(item) <= 5:
-                    genRange = '0<=x<=5'
-                if 5 < int(item) <= 10:
-                    genRange = '5<x<=10'
-                if 10 < int(item) <= 15:
-                    genRange = '10<x<=15'
-                if 15 < int(item) <= 20:
-                    genRange = '15<x<=20'
-                if 20 < int(item) <= 25:
-                    genRange = '20<x<=25'
-                if 25 < int(item) <= 30:
-                    genRange = "25<x<=30"
-                if 30 < int(item) <= 35:
-                    genRange = "30<x<=35"
-                if 35 < int(item) <= 40:
-                    genRange = '35<x<=40'
-                if 40 < int(item) <= 45:
-                    genRange = '40<x<=45'
-                if 45 < int(item) <= 50:
-                    genRange = '45<x<=50'
-                if 50 < int(item) <= 55:
-                    genRange = '50<x<=55'
-                if 55 < int(item) <= 60:
-                    genRange = '55<x<=60'
-                if 60 < int(item) <= 65:
-                    genRange = '60<x<=65'
-                if 65 < int(item) <= 70:
-                    genRange = '65<x<=70'
-                if 70 < int(item) <= 75:
-                    genRange = '70<x<=75'
-                if 75 < int(item) <= 80:
-                    genRange = '75<x<=80'
-                if 80 < int(item) <= 85:
-                    genRange = '80<x<=85'
-                if 85 < int(item) <= 90:
-                    genRange = '85<x<=90'
-                if 90 < int(item) <= 95:
-                    genRange = '90<x<=95'
-                if 95 < int(item) <= 100:
-                    genRange = '95<x<=100'
+            item = float(item)
+            if 0 <= item <= 5:
+                genRange = '0<=x<=5'
+            if 5 < item <= 10:
+                genRange = '5<x<=10'
+            if 10 < item <= 15:
+                genRange = '10<x<=15'
+            if 15 < item <= 20:
+                genRange = '15<x<=20'
+            if 20 < item <= 25:
+                genRange = '20<x<=25'
+            if 25 < item <= 30:
+                genRange = "25<x<=30"
+            if 30 < item <= 35:
+                genRange = "30<x<=35"
+            if 35 < item <= 40:
+                genRange = '35<x<=40'
+            if 40 < item <= 45:
+                genRange = '40<x<=45'
+            if 45 < item <= 50:
+                genRange = '45<x<=50'
+            if 50 < item <= 55:
+                genRange = '50<x<=55'
+            if 55 < item <= 60:
+                genRange = '55<x<=60'
+            if 60 < item <= 65:
+                genRange = '60<x<=65'
+            if 65 < item <= 70:
+                genRange = '65<x<=70'
+            if 70 < item <= 75:
+                genRange = '70<x<=75'
+            if 75 < item <= 80:
+                genRange = '75<x<=80'
+            if 80 < item <= 85:
+                genRange = '80<x<=85'
+            if 85 < item <= 90:
+                genRange = '85<x<=90'
+            if 90 < item <= 95:
+                genRange = '90<x<=95'
+            if 95 < item <= 100:
+                genRange = '95<x<=100'
             columnToGen.append(genRange)
         data = {column: columnToGen}
         return pd.DataFrame(data=data)
 
     if dim == 2:
         for item in datasetDF[column]:
-            if 0 <= int(item) <= 10:
+            item = float(item)
+            if 0 <= item <= 10:
                 genRange = '0<=x<=10'
-            if 10 < int(item) <= 20:
+            if 10 < item <= 20:
                 genRange = '10<x<=20'
-            if 20 < int(item) <= 30:
+            if 20 < item <= 30:
                 genRange = '20<x<=30'
-            if 30 < int(item) <= 40:
+            if 30 < item <= 40:
                 genRange = "30<x<=40"
-            if 40 < int(item) <= 50:
+            if 40 < item <= 50:
                 genRange = '40<x<=50'
-            if 50 < int(item) <= 60:
+            if 50 < item <= 60:
                 genRange = '50<x<=60'
-            if 60 < int(item) <= 70:
+            if 60 < item <= 70:
                 genRange = '60<x<=70'
-            if 70 < int(item) <= 80:
+            if 70 < item <= 80:
                 genRange = '70<x<=80'
-            if 80 < int(item) <= 90:
+            if 80 < item <= 90:
                 genRange = '80<x<=90'
-            if 90 < int(item) <= 100:
+            if 90 < item <= 100:
                 genRange = '90<x<=100'
             columnToGen.append(genRange)
         data = {column: columnToGen}
