@@ -32,13 +32,15 @@ Postcode: P0 (original), P1 (First 3 letters), P2 (First 2 Letters)
 
 
 def samarati():
+    solution = None
+    heightArray = []
+
     nodes = []
     nodes = generateLatticeNodes(quasiIdentifiers, nodes)
-    heightArray = []
 
     for node in nodes[0]:
         height = 0
-        for index in range(1, len(node), 2):  # iterates through all the possible next node ids
+        for index in range(1, len(node), 2):
             height += int(node[index])
         heightArray.append(height)
     heightSet = list(set([i for i in heightArray]))
@@ -51,10 +53,10 @@ def samarati():
 
         for i in range(len(heightArray)):
             if heightArray[i] == mid:
-                dimDataframe = updateDataframe(nodes[0][i], suppress, numeric, shorten)
+                dimDataframe = updateDataframe(nodes[0][i], suppress, numeric, shorten, n2, n3)
                 kValue = frequencySet(dimDataframe)
 
-                if kValue >= kanonymity:
+                if kValue == kanonymity:
                     solution = copy.deepcopy(dimDataframe)
                     solutionKValue = kValue
                     found = True
@@ -66,19 +68,22 @@ def samarati():
         else:
             low = mid + 1
 
-    print(solution)
-    print(solutionKValue)
+    if solution is not None:
+        print(solution)
+        print(solutionKValue)
+    else:
+        print("no solution found")
+    # solution.to_csv(r'output\output.csv', index=False)
     print("--- %s seconds ---" % (time.time() - start_time))
 
 
 def incognito():
-    nodes = []
-    for columnNames in incognitoAttributeList:  # Generates list of all potential nodes
-        nodes = generateLatticeNodes(columnNames, nodes)
-    E = generateLatticeEdges(nodes)
-
     queue = []
     fullDomainList = []  # List for all nodes which meet requirements
+
+    nodes = []
+    generateLatticeNodes(quasiIdentifiers, nodes)
+    E = generateLatticeEdges(nodes)
 
     for i, j in zip(nodes, E):
         # i is the nodes of the original lattice, j is the edges of the original lattice
@@ -92,11 +97,11 @@ def incognito():
             queue.pop(0)
 
             if node not in visited:
-                dimDataframe = createTempDataframe(node, suppress, numeric, shorten)  # returns dimDataframe
+                dimDataframe = createTempDataframe(node, suppress, numeric, shorten, n2, n3)  # returns dimDataframe
                 kValue = frequencySet(dimDataframe)  # returns KValue
                 # Compute frequency set by replacing values in i in original table
 
-                if kValue >= kanonymity:
+                if kValue >= 2:
                     # if meets kanonymity requirement then add direct generalizations to visited
 
                     # If it matches, add it to visited queue and visited
@@ -149,14 +154,18 @@ def graphGen(nodeList):
                     genLattice.append(newLat)
 
     # Print all full domain generalisations
-    for node in genLattice:
-        dimDataframe = updateDataframe(node, suppress, numeric, shorten)
-        kValue = frequencySet(dimDataframe)
+    if len(genLattice) >= 1:
+        for node in genLattice:
+            dimDataframe = updateDataframe(node, suppress, numeric, shorten, n2, n3)
+            kValue = frequencySet(dimDataframe)
 
-        if kValue >= kanonymity:
-            print(node)
-            print(dimDataframe)
-            print(kValue)
+            if kValue == kanonymity:
+                print(node)
+                print(dimDataframe)
+                print(kValue)
+    else:
+        print("no solution found")
+
     print("--- %s seconds ---" % (time.time() - start_time))
 
 
@@ -166,7 +175,7 @@ def simpleSearch():
 
     for node in C[0]:  # For each potential node in lattice
         # Node are ordered by height
-        dimDataframe = updateDataframe(node, suppress, numeric, shorten)
+        dimDataframe = updateDataframe(node, suppress, numeric, shorten, n2, n3)
         kValue = frequencySet(dimDataframe)
         if kValue >= kanonymity:  # If a node meets requirements, print and break
             print(dimDataframe)
@@ -183,13 +192,13 @@ def frequencySet(dataframe):
 
 
 if __name__ == '__main__':
-    start_time = time.time()
-    kanonymity = 2
+    #kanonymity = 2
     lines = readHeader()
-
     suppress = []
     numeric = []
     shorten = []
+    n2 = []
+    n3 = []
     quasiIdentifiers = []
     incognitoAttributeList = []
     for line in lines:
@@ -200,12 +209,20 @@ if __name__ == '__main__':
             quasiIdentifiers.append(supList)
         if line[1] == "NUMERIC":
             numeric.append(line[0])
-            numList = [[line[0], 0], [line[0], 1], [line[0], 2]]
+            numList = [[line[0], 0], [line[0], 1], [line[0], 2], [line[0], 3], [line[0], 4], [line[0], 5]]
             quasiIdentifiers.append(numList)
         if line[1] == "SHORTEN":
             shorten.append(line[0])
             shortList = [[line[0], 0], [line[0], 1], [line[0], 2]]
             quasiIdentifiers.append(shortList)
+        if line[1] == "N2":
+            n2.append(line[0])
+            n2List = [[line[0], 0], [line[0], 1], [line[0], 2], [line[0], 3], [line[0], 4], [line[0], 5]]
+            quasiIdentifiers.append(n2List)
+        if line[1] == "N3":
+            n3.append(line[0])
+            n3List = [[line[0], 0], [line[0], 1], [line[0], 2]]
+            quasiIdentifiers.append(n3List)
 
     for i in range(0, len(quasiIdentifiers)):
         if i == len(quasiIdentifiers)-1:
@@ -214,6 +231,10 @@ if __name__ == '__main__':
             quasiPairs = [quasiIdentifiers[i], quasiIdentifiers[i + 1]]
         incognitoAttributeList.append(quasiPairs)
 
-    incognito()
+    for i in range(2,16):
+        start_time = time.time()
+        print(i)
+        kanonymity = i
+        samarati()
     # samarati()
     # simpleSearch()

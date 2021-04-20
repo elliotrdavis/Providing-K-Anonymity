@@ -11,7 +11,7 @@ import csv
 
 
 def readHeader():
-    file1 = open('data/census-header.txt', 'r')
+    file1 = open('data/census/census-header-edited.txt', 'r')
     lines = file1.readlines()
     return lines
 
@@ -19,10 +19,14 @@ def readHeader():
 def readFiles():
     newList = []
     datasetColumns = []
+    count = 0
 
-    with open('data/census-income_1K.csv', 'r') as file:
+    with open('data/census/census-income_all-edited.csv', 'r') as file:
         reader = csv.reader(file)
         for row in reader:
+            if count == 50000:
+                break
+            count = count + 1
             newList.append(row)
 
     lines = readHeader()
