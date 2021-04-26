@@ -6,26 +6,10 @@ This file is responsible for converting the columns for each attribute we want t
 
 """
 import pandas as pd
-# from KValue import readFiles
 import copy
-
 from KValue import readFiles
 
 datasetDF = readFiles()
-# from KValue import datasetDF
-
-nameDFList = []
-sexDFList = []
-addressDFList = []
-patientIDDFList = []
-treatmentDFList = []
-ageDFList = []
-postcodeDFList = []
-weightDFList = []
-
-patientID = [["Patient ID", 0], ["Patient ID", 1]]
-weight = [["Weight (kg)", 0], ["Weight (kg)", 1], ["Weight (kg)", 2]]
-treatment = [["Treatment", 0], ["Treatment", 1]]
 
 
 def suppressList(column, dim):
@@ -53,7 +37,6 @@ def generalizeNumericList(column, dim):
 
     if dim == 1:
         for item in datasetDF[column]:
-            #print("item", item, len(item))
             if len(item) == 0:
                 item = 0
             item = float(item)
@@ -108,23 +91,23 @@ def generalizeNumericList(column, dim):
             item = float(item)
             if 0 <= item <= 10:
                 genRange = '0<=x<=10'
-            if 10 < item <= 20:
+            elif 10 < item <= 20:
                 genRange = '10<x<=20'
-            if 20 < item <= 30:
+            elif 20 < item <= 30:
                 genRange = '20<x<=30'
-            if 30 < item <= 40:
+            elif 30 < item <= 40:
                 genRange = "30<x<=40"
-            if 40 < item <= 50:
+            elif 40 < item <= 50:
                 genRange = '40<x<=50'
-            if 50 < item <= 60:
+            elif 50 < item <= 60:
                 genRange = '50<x<=60'
-            if 60 < item <= 70:
+            elif 60 < item <= 70:
                 genRange = '60<x<=70'
-            if 70 < item <= 80:
+            elif 70 < item <= 80:
                 genRange = '70<x<=80'
-            if 80 < item <= 90:
+            elif 80 < item <= 90:
                 genRange = '80<x<=90'
-            if 90 < item <= 100:
+            elif 90 < item <= 100:
                 genRange = '90<x<=100'
             columnToGen.append(genRange)
         data = {column: columnToGen}
@@ -137,13 +120,13 @@ def generalizeNumericList(column, dim):
             item = float(item)
             if 0 <= item <= 20:
                 genRange = '0<=x<=20'
-            if 20 < item <= 40:
+            elif 20 < item <= 40:
                 genRange = '20<x<=40'
-            if 40 < item <= 60:
+            elif 40 < item <= 60:
                 genRange = '40<x<=60'
-            if 60 < item <= 80:
+            elif 60 < item <= 80:
                 genRange = "60<x<=80"
-            if 80 < item <= 100:
+            elif 80 < item <= 100:
                 genRange = '80<x<=100'
             columnToGen.append(genRange)
         data = {column: columnToGen}
@@ -156,7 +139,7 @@ def generalizeNumericList(column, dim):
             item = float(item)
             if 0 <= item <= 50:
                 genRange = '0<=x<=50'
-            if 50 < item <= 100:
+            elif 50 < item <= 100:
                 genRange = '50<x<=100'
             columnToGen.append(genRange)
         data = {column: columnToGen}
@@ -183,45 +166,45 @@ def generalizeNumericList2(column, dim):
             item = float(item)
             if 0 <= item <= 200:
                 genRange = '0<=x<=200'
-            if 200 < item <= 400:
+            elif 200 < item <= 400:
                 genRange = '200<x<=400'
-            if 400 < item <= 600:
+            elif 400 < item <= 600:
                 genRange = '400<x<=600'
-            if 600 < item <= 800:
+            elif 600 < item <= 800:
                 genRange = '600<x<=800'
-            if 800 < item <= 1000:
+            elif 800 < item <= 1000:
                 genRange = '800<x<=1000'
-            if 1000 < item <= 1200:
+            elif 1000 < item <= 1200:
                 genRange = "1000<x<=1200"
-            if 1200 < item <= 1400:
+            elif 1200 < item <= 1400:
                 genRange = "1200<x<=1400"
-            if 1400 < item <= 1600:
+            elif 1400 < item <= 1600:
                 genRange = '1400<x<=1600'
-            if 1600 < item <= 1800:
+            elif 1600 < item <= 1800:
                 genRange = '1600<x<=1800'
-            if 1800 < item <= 2000:
+            elif 1800 < item <= 2000:
                 genRange = '1800<x<=2000'
-            if 2000 < item <= 2200:
+            elif 2000 < item <= 2200:
                 genRange = '2000<x<=2200'
-            if 2200 < item <= 2400:
+            elif 2200 < item <= 2400:
                 genRange = '2200<x<=2400'
-            if 2400 < item <= 2600:
+            elif 2400 < item <= 2600:
                 genRange = '2400<x<=2600'
-            if 2600 < item <= 2800:
+            elif 2600 < item <= 2800:
                 genRange = '2600<x<=2800'
-            if 2800 < item <= 3000:
+            elif 2800 < item <= 3000:
                 genRange = '2800<x<=3000'
-            if 3000 < item <= 3200:
+            elif 3000 < item <= 3200:
                 genRange = '3000<x<=3200'
-            if 3200 < item <= 3400:
+            elif 3200 < item <= 3400:
                 genRange = '3200<x<=3400'
-            if 3400 < item <= 3600:
+            elif 3400 < item <= 3600:
                 genRange = '3400<x<=3600'
-            if 3600 < item <= 3800:
+            elif 3600 < item <= 3800:
                 genRange = '3600<x<=3800'
-            if 3800 < item <= 4000:
+            elif 3800 < item <= 4000:
                 genRange = '3800<x<=4000'
-            if item > 4000:
+            elif item > 4000:
                 genRange = 'x>4000'
             columnToGen.append(genRange)
         data = {column: columnToGen}
@@ -232,25 +215,25 @@ def generalizeNumericList2(column, dim):
             item = float(item)
             if 0 <= item <= 400:
                 genRange = '0<=x<=400'
-            if 400 < item <= 800:
+            elif 400 < item <= 800:
                 genRange = '400<x<=800'
-            if 800 < item <= 1200:
+            elif 800 < item <= 1200:
                 genRange = '800<x<=1200'
-            if 1200 < item <= 1600:
+            elif 1200 < item <= 1600:
                 genRange = '1200<x<=1600'
-            if 1600 < item <= 2000:
+            elif 1600 < item <= 2000:
                 genRange = '1600<x<=2000'
-            if 2000 < item <= 2400:
+            elif 2000 < item <= 2400:
                 genRange = "2000<x<=2400"
-            if 2400 < item <= 2800:
+            elif 2400 < item <= 2800:
                 genRange = "2400<x<=2800"
-            if 2800 < item <= 3200:
+            elif 2800 < item <= 3200:
                 genRange = '2800<x<=3200'
-            if 3200 < item <= 3600:
+            elif 3200 < item <= 3600:
                 genRange = '3200<x<=3600'
-            if 3600 < item <= 4000:
+            elif 3600 < item <= 4000:
                 genRange = '3600<x<=4000'
-            if item > 4000:
+            elif item > 4000:
                 genRange = 'x>4000'
             columnToGen.append(genRange)
         data = {column: columnToGen}
@@ -261,15 +244,15 @@ def generalizeNumericList2(column, dim):
             item = float(item)
             if 0 <= item <= 800:
                 genRange = '0<=x<=800'
-            if 800 < item <= 1600:
+            elif 800 < item <= 1600:
                 genRange = '800<x<=1600'
-            if 1600 < item <= 2400:
+            elif 1600 < item <= 2400:
                 genRange = '1600<x<=2400'
-            if 2400 < item <= 3200:
+            elif 2400 < item <= 3200:
                 genRange = '2400<x<=3200'
-            if 3200 < item <= 4000:
+            elif 3200 < item <= 4000:
                 genRange = '3200<x<=4000'
-            if item > 4000:
+            elif item > 4000:
                 genRange = 'x>4000'
             columnToGen.append(genRange)
         data = {column: columnToGen}
@@ -280,7 +263,7 @@ def generalizeNumericList2(column, dim):
             item = float(item)
             if item <= 1600:
                 genRange = 'x<=1600'
-            if item > 1600:
+            elif item > 1600:
                 genRange = 'x>1600'
             columnToGen.append(genRange)
         data = {column: columnToGen}
@@ -307,11 +290,11 @@ def generalizeNumericList3(column, dim):
             item = float(item)
             if 0 <= item <= 2:
                 genRange = '0<=x<=2'
-            if 2 < item <= 4:
+            elif 2 < item <= 4:
                 genRange = '2<x<=4'
-            if 4 < item <= 6:
+            elif 4 < item <= 6:
                 genRange = '4<x<=6'
-            if item > 6:
+            elif item > 6:
                 genRange = 'x>6'
             columnToGen.append(genRange)
         data = {column: columnToGen}
@@ -352,13 +335,13 @@ def shortenList(column, dim):
 def updateColumn(column, dim, suppress, numeric, shorten, n2, n3):
     if column in suppress:
         change = suppressList(column, dim)
-    if column in numeric:
+    elif column in numeric:
         change = generalizeNumericList(column, dim)
-    if column in shorten:
+    elif column in shorten:
         change = shortenList(column, dim)
-    if column in n2:
+    elif column in n2:
         change = generalizeNumericList2(column, dim)
-    if column in n3:
+    elif column in n3:
         change = generalizeNumericList3(column, dim)
     return change
 

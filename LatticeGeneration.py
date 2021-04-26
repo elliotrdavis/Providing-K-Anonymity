@@ -6,8 +6,6 @@ This file generates the generalization lattices (nodes and edges)
 
 """
 
-from functools import reduce
-from itertools import product
 import itertools
 
 
@@ -27,10 +25,10 @@ def generateLatticeNodes(attributeDimensions, allCandidateNodes):
     # attributeCombinations generates a list of all combinations of node depths in order (will allow easier
     # computation for Samariti's algorithm)
 
-    # Depth example:
-    # [(0, 1), (0, 1), (0, 1), (0, 1, 2), (0, 1, 2)]
+    # Attribute name list: ["Name", "Sex", "Address", "Age", "Postcode"]
+    # depth: [(0, 1), (0, 1), (0, 1), (0, 1, 2), (0, 1, 2)]
     attributeCombinations = sorted(list(itertools.product(*depth)), key=sum)
-    # attributeCombinations example:
+    # Cartesian product of depth example:
     # [(0, 0, 0, 0, 0), (0, 0, 0, 0, 1), (0, 0, 0, 1, 0), (0, 0, 1, 0, 0), ... ,(1, 1, 1, 2, 1), (1, 1, 1, 2, 2)]
 
     attributeCombinations = [[str(j) for j in i] for i in attributeCombinations]
@@ -42,7 +40,11 @@ def generateLatticeNodes(attributeDimensions, allCandidateNodes):
             newNode.append(dimensionNameList[index])
             newNode.append(node[index])
         candidateNodes.append(newNode)  # Adds all possible nodes to one list
-    allCandidateNodes.append(candidateNodes)  # Add to second list (used for incognito algorithm, not samariti)
+    allCandidateNodes.append(candidateNodes)  # Add to second list (used for incognito algorithm, not samarati)
+
+    # Returned list
+    # [("Name", 0, "Sex", 0, "Address", 0, "Age", 0, "Postcode", 0), ... ,
+    # ("Name", 1, "Sex", 1, "Address", 1, "Age", 2, "Postcode", 2)]
 
     return allCandidateNodes
 

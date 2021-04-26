@@ -2,33 +2,15 @@
 Main.py
 Author: Elliot Davis
 
-This file implements the Incognito algorithm and the Samariti algorithm, it contains a function to calculate the
+This file implements the Incognito algorithm and the Samariti algorithm, it also contains a function to calculate the
 k value of a given data set
 
 """
 import copy
-
 from ColumnConversion import createTempDataframe, updateDataframe
-from GraphGeneration import latticeGraph
 from LatticeGeneration import generateLatticeNodes, generateLatticeEdges
 import time
 from KValue import readHeader
-
-"""
-TODO:
-Incognito not marking all nodes if kvalue true - not necessary
-generate edges in pruned genLattice - not necessary
-
-
-Columns: 'Name','Age','Sex','Address','Party','Postcode'
-Dimension table: current requirements
-Name: P0 (name), P1 (-)
-Age: P0 (original), P1 (5 age range), P2 (10 age range), P3 (20 age range)
-Sex: P0 (male/female), P1 (-)
-Address: P0 (address), P1 (-)
-Party: P0 (important info)
-Postcode: P0 (original), P1 (First 3 letters), P2 (First 2 Letters)
-"""
 
 
 def samarati():
@@ -54,9 +36,10 @@ def samarati():
         for i in range(len(heightArray)):
             if heightArray[i] == mid:
                 dimDataframe = updateDataframe(nodes[0][i], suppress, numeric, shorten, n2, n3)
-                kValue = frequencySet(dimDataframe)
+                kValue = calculateK(dimDataframe)
 
                 if kValue == kanonymity:
+                    print(nodes[0][i])
                     solution = copy.deepcopy(dimDataframe)
                     solutionKValue = kValue
                     found = True
@@ -73,7 +56,6 @@ def samarati():
         print(solutionKValue)
     else:
         print("no solution found")
-    # solution.to_csv(r'output\output.csv', index=False)
     print("--- %s seconds ---" % (time.time() - start_time))
 
 
@@ -82,7 +64,10 @@ def incognito():
     fullDomainList = []  # List for all nodes which meet requirements
 
     nodes = []
-    generateLatticeNodes(quasiIdentifiers, nodes)
+    # generateLatticeNodes(quasiIdentifiers, nodes)
+    # E = generateLatticeEdges(nodes)
+    for columnNames in incognitoAttributeList:  # Generates list of all potential nodes
+        nodes = generateLatticeNodes(columnNames, nodes)
     E = generateLatticeEdges(nodes)
 
     for i, j in zip(nodes, E):
@@ -98,10 +83,10 @@ def incognito():
 
             if node not in visited:
                 dimDataframe = createTempDataframe(node, suppress, numeric, shorten, n2, n3)  # returns dimDataframe
-                kValue = frequencySet(dimDataframe)  # returns KValue
+                kValue = calculateK(dimDataframe)  # returns KValue
                 # Compute frequency set by replacing values in i in original table
 
-                if kValue >= 2:
+                if kValue >= kanonymity:
                     # if meets kanonymity requirement then add direct generalizations to visited
 
                     # If it matches, add it to visited queue and visited
@@ -137,6 +122,7 @@ def incognito():
 # Generates all potential full domain generalizations which meet kanonymity requirement
 def graphGen(nodeList):
     genLattice = []
+    seen = set()
     for firstNode in nodeList[0]:  # Adds first set of nodes to list
         genLattice.append(firstNode)
     nodeList.pop(0)
@@ -147,22 +133,31 @@ def graphGen(nodeList):
                 if lat[-1] == node[1] and lat[-2] == node[0]:  # Check if matching nodes have matching dimensions
                     lat.append(node[2])
                     lat.append(node[3])
+                    t = tuple(lat)
+                    if t not in seen:
+                        genLattice.append(lat)
+                        seen.add(t)
                 # Check if names are matching but numbers are different, create new node if so
-                if lat[-4] == node[0] and lat[-3] == node[1] and lat[-2] == node[2] and lat[-1] != node[3]:
+                elif lat[-4] == node[0] and lat[-3] == node[1] and lat[-2] == node[2] and lat[-1] != node[3]:
                     newLat = lat[:]
                     newLat[-1] = node[3]
-                    genLattice.append(newLat)
+                    t = tuple(newLat)
+                    if t not in seen:
+                        genLattice.append(newLat)
+                        seen.add(t)
 
+    count = 0
     # Print all full domain generalisations
     if len(genLattice) >= 1:
         for node in genLattice:
             dimDataframe = updateDataframe(node, suppress, numeric, shorten, n2, n3)
-            kValue = frequencySet(dimDataframe)
+            kValue = calculateK(dimDataframe)
 
             if kValue == kanonymity:
+                count = count + 1
                 print(node)
-                print(dimDataframe)
-                print(kValue)
+                # print(dimDataframe)
+                print("kValue", kValue)
     else:
         print("no solution found")
 
@@ -176,8 +171,8 @@ def simpleSearch():
     for node in C[0]:  # For each potential node in lattice
         # Node are ordered by height
         dimDataframe = updateDataframe(node, suppress, numeric, shorten, n2, n3)
-        kValue = frequencySet(dimDataframe)
-        if kValue >= kanonymity:  # If a node meets requirements, print and break
+        kValue = calculateK(dimDataframe)
+        if kValue == kanonymity:  # If a node meets requirements, print and break
             print(dimDataframe)
             print(kValue)
             print("--- %s seconds ---" % (time.time() - start_time))
@@ -185,14 +180,13 @@ def simpleSearch():
 
 
 # Returns k-value (how secure the dataset is)
-def frequencySet(dataframe):
+def calculateK(dataframe):
     KValue = dataframe.groupby(list(dataframe.columns)).size().reset_index(name='Count')
     KValue = KValue['Count'].min()
     return KValue
 
 
 if __name__ == '__main__':
-    #kanonymity = 2
     lines = readHeader()
     suppress = []
     numeric = []
@@ -231,10 +225,10 @@ if __name__ == '__main__':
             quasiPairs = [quasiIdentifiers[i], quasiIdentifiers[i + 1]]
         incognitoAttributeList.append(quasiPairs)
 
-    for i in range(2,16):
+    for i in range(3,4):
         start_time = time.time()
-        print(i)
         kanonymity = i
-        samarati()
-    # samarati()
-    # simpleSearch()
+        print(kanonymity)
+        # incognito()
+        # samarati()
+        simpleSearch()

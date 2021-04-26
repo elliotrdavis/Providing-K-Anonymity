@@ -11,7 +11,8 @@ import csv
 
 
 def readHeader():
-    file1 = open('data/census/census-header-edited.txt', 'r')
+    file1 = open('data/census/census-header-edited-10.txt', 'r')
+    # file1 = open('data/voterlist/voterlist-header.txt', 'r')
     lines = file1.readlines()
     return lines
 
@@ -21,10 +22,10 @@ def readFiles():
     datasetColumns = []
     count = 0
 
-    with open('data/census/census-income_all-edited.csv', 'r') as file:
+    with open('data/census/census-income_ALL-edited-10.csv', 'r') as file:
         reader = csv.reader(file)
         for row in reader:
-            if count == 50000:
+            if count == 5000:
                 break
             count = count + 1
             newList.append(row)
@@ -34,7 +35,7 @@ def readFiles():
         line = line.split()
         datasetColumns.append(line[0])
 
-    # datasetDF = VoterListDF
+    # newList = VoterList
     datasetDF = pd.DataFrame(newList, columns=datasetColumns)
     return datasetDF
 
@@ -50,16 +51,16 @@ MedicalList = [[56183, 35, "Male", 96, "Asthma", "Inhaler", "SE5 6AH"],
                [54894, 29, "Female", 53, "Back Pain", "Physiotherapy", "SE6 3NG"],
                [84653, 29, "Male", 90, "Asthma", "Inhaler", "SE7 3FE"]]
 
-VoterList = [["Oskar Green", 35, "Male", "10 Bairstow Road", "Conservative", "SE5 6AH"],
-             ["Carys Newton", 25, "Female", "24 South Road", "Labour", "SE7 6LF"],
-             ["Lily Page", 21, "Female", "37 Tennyson Close", "Labour", "SE7 9PQ"],
-             ["Finn Mack", 35, "Male", "70 Godolphin Close", "Conservative", "SE5 8LP"],
-             ["Clyde Knapp", 28, "Male", "12 Silverdale", "Conservative", "SE7 8QX"],
-             ["Andrea Lucas", 23, "Female", "6 Telford Mews", "Conservative", "SE6 9WG"],
-             ["Athena Hart", 32, "Female", "11 Angel Yard", "Labour", "SE7 6RF"],
-             ["Isabel Mason", 34, "Female", "27 Church Road", "Labour", "SE7 7LF"],
-             ["Carolyn Snider", 29, "Female", "33 Chatto Road", "Conservative", "SE6 3NG"],
-             ["Jacob Thompson", 29, "Male", "5 The Lerburne", "Conservative", "SE7 3FE"]]
+VoterList = [["Oskar Green", "35", "Male", "10 Bairstow Road", "Conservative", "SE5 6AH"],
+             ["Carys Newton", "25", "Female", "24 South Road", "Labour", "SE7 6LF"],
+             ["Lily Page", "21", "Female", "37 Tennyson Close", "Labour", "SE7 9PQ"],
+             ["Finn Mack", "35", "Male", "70 Godolphin Close", "Conservative", "SE5 8LP"],
+             ["Clyde Knapp", "28", "Male", "12 Silverdale", "Conservative", "SE7 8QX"],
+             ["Andrea Lucas", "23", "Female", "6 Telford Mews", "Conservative", "SE6 9WG"],
+             ["Athena Hart", "32", "Female", "11 Angel Yard", "Labour", "SE7 6RF"],
+             ["Isabel Mason", "34", "Female", "27 Church Road", "Labour", "SE7 7LF"],
+             ["Carolyn Snider", "29", "Female", "33 Chatto Road", "Conservative", "SE6 3NG"],
+             ["Jacob Thompson", "29", "Male", "5 The Lerburne", "Conservative", "SE7 3FE"]]
 
 MedicalListColumns = ['Patient ID', 'Age', 'Sex', 'Weight (kg)', 'Medical Issue', 'Treatment', 'Postcode']
 MedicalListDF = pd.DataFrame(MedicalList, columns=MedicalListColumns)
