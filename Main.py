@@ -64,8 +64,6 @@ def incognito():
     fullDomainList = []  # List for all nodes which meet requirements
 
     nodes = []
-    # generateLatticeNodes(quasiIdentifiers, nodes)
-    # E = generateLatticeEdges(nodes)
     for columnNames in incognitoAttributeList:  # Generates list of all potential nodes
         nodes = generateLatticeNodes(columnNames, nodes)
     E = generateLatticeEdges(nodes)
@@ -146,7 +144,6 @@ def graphGen(nodeList):
                         genLattice.append(newLat)
                         seen.add(t)
 
-    count = 0
     # Print all full domain generalisations
     if len(genLattice) >= 1:
         for node in genLattice:
@@ -154,7 +151,6 @@ def graphGen(nodeList):
             kValue = calculateK(dimDataframe)
 
             if kValue == kanonymity:
-                count = count + 1
                 print(node)
                 # print(dimDataframe)
                 print("kValue", kValue)
@@ -225,10 +221,10 @@ if __name__ == '__main__':
             quasiPairs = [quasiIdentifiers[i], quasiIdentifiers[i + 1]]
         incognitoAttributeList.append(quasiPairs)
 
-    for i in range(3,4):
+    for i in range(2,4):
         start_time = time.time()
         kanonymity = i
         print(kanonymity)
-        # incognito()
+        incognito()
         # samarati()
-        simpleSearch()
+        # simpleSearch()

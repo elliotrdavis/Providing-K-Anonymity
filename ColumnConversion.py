@@ -12,6 +12,7 @@ from KValue import readFiles
 datasetDF = readFiles()
 
 
+# This function returns either the original data or a suppressed list depending on dim
 def suppressList(column, dim):
     columnToSup = []
     if dim == 0:
@@ -27,6 +28,8 @@ def suppressList(column, dim):
         return pd.DataFrame(data=data)
 
 
+# Numeric generalization function used for values from 0-100 (age).
+# Returns generalized string depending on dim
 def generalizeNumericList(column, dim):
     columnToGen = []
     if dim == 0:
@@ -153,6 +156,8 @@ def generalizeNumericList(column, dim):
         return pd.DataFrame(data=data)
 
 
+# Numeric generalization function used for values from 0-4000 (weight values from census data set).
+# Returns generalized string depending on dim
 def generalizeNumericList2(column, dim):
     columnToGen = []
     if dim == 0:
@@ -277,6 +282,8 @@ def generalizeNumericList2(column, dim):
         return pd.DataFrame(data=data)
 
 
+# Numeric generalization function used for values from 0-6+ (num of employers from census data set).
+# Returns generalized string depending on dim.
 def generalizeNumericList3(column, dim):
     columnToGen = []
     if dim == 0:
@@ -308,6 +315,8 @@ def generalizeNumericList3(column, dim):
         return pd.DataFrame(data=data)
 
 
+# Taxonomy generalization function.
+# Returns generalized string depending on dim.
 def shortenList(column, dim):
     columnToGen = []
     if dim == 0:
@@ -330,8 +339,6 @@ def shortenList(column, dim):
 
 
 # Returns column depending on column name and dimension number parameters
-# This method will only generate the generalized column if it hasn't been created yet, otherwise it will call it
-# from the respective array
 def updateColumn(column, dim, suppress, numeric, shorten, n2, n3):
     if column in suppress:
         change = suppressList(column, dim)

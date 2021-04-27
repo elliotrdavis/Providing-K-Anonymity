@@ -22,18 +22,18 @@ def generateLatticeNodes(attributeDimensions, allCandidateNodes):
         depth.append(tuple(dimArray))  # Adds dimension depth number for each attribute
 
     dimensionNameList = tuple(dimensionNameList)
-    # attributeCombinations generates a list of all combinations of node depths in order (will allow easier
+    # cartesianProduct generates a list of all combinations of node depths in order (will allow easier
     # computation for Samariti's algorithm)
 
     # Attribute name list: ["Name", "Sex", "Address", "Age", "Postcode"]
-    # depth: [(0, 1), (0, 1), (0, 1), (0, 1, 2), (0, 1, 2)]
-    attributeCombinations = sorted(list(itertools.product(*depth)), key=sum)
+    # Depth list: [(0, 1), (0, 1), (0, 1), (0, 1, 2), (0, 1, 2)]
+    cartesianProduct = sorted(list(itertools.product(*depth)), key=sum)
     # Cartesian product of depth example:
     # [(0, 0, 0, 0, 0), (0, 0, 0, 0, 1), (0, 0, 0, 1, 0), (0, 0, 1, 0, 0), ... ,(1, 1, 1, 2, 1), (1, 1, 1, 2, 2)]
 
-    attributeCombinations = [[str(j) for j in i] for i in attributeCombinations]
+    cartesianProduct = [[str(j) for j in i] for i in cartesianProduct]
     candidateNodes = []
-    for node in attributeCombinations:  # for each node in lattice
+    for node in cartesianProduct:  # for each node in lattice
         newNode = []
         for index in range(len(node)):  # for each index in the node
             # Generates list with respective attribute name and depth next to each other
@@ -42,7 +42,7 @@ def generateLatticeNodes(attributeDimensions, allCandidateNodes):
         candidateNodes.append(newNode)  # Adds all possible nodes to one list
     allCandidateNodes.append(candidateNodes)  # Add to second list (used for incognito algorithm, not samarati)
 
-    # Returned list
+    # Returned list (nodesList)
     # [("Name", 0, "Sex", 0, "Address", 0, "Age", 0, "Postcode", 0), ... ,
     # ("Name", 1, "Sex", 1, "Address", 1, "Age", 2, "Postcode", 2)]
 

@@ -11,8 +11,8 @@ import csv
 
 
 def readHeader():
-    file1 = open('data/census/census-header-edited-10.txt', 'r')
-    # file1 = open('data/voterlist/voterlist-header.txt', 'r')
+    # file1 = open('data/census/census-header-edited-10.txt', 'r')
+    file1 = open('data/voterlist/voterlist-header.txt', 'r')
     lines = file1.readlines()
     return lines
 
@@ -35,7 +35,7 @@ def readFiles():
         line = line.split()
         datasetColumns.append(line[0])
 
-    # newList = VoterList
+    newList = VoterList
     datasetDF = pd.DataFrame(newList, columns=datasetColumns)
     return datasetDF
 
